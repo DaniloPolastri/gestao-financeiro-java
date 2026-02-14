@@ -12,6 +12,26 @@
 
 ---
 
+## Chunk 0: Branch Setup
+
+### Task 0: Create feature branch
+
+- [ ] **Step 1: Create and switch to feature branch**
+
+```bash
+git checkout master
+git checkout -b feature/phase1-infra-auth
+```
+
+- [ ] **Step 2: Verify branch**
+
+```bash
+git branch --show-current
+```
+Expected: `feature/phase1-infra-auth`
+
+---
+
 ## Chunk 1: Infrastructure Setup
 
 ### Task 1: Docker Compose + PostgreSQL
@@ -3065,6 +3085,50 @@ Open http://localhost:8081/swagger-ui.html — should show Auth Service API docs
 git add -A
 git commit -m "feat: complete Phase 1 - infrastructure, auth service, and frontend shell"
 ```
+
+---
+
+### Task 12: Push Branch and Create Pull Request
+
+- [ ] **Step 1: Push feature branch to remote**
+
+```bash
+git push -u origin feature/phase1-infra-auth
+```
+
+- [ ] **Step 2: Create Pull Request for review**
+
+```bash
+gh pr create --title "Phase 1: Infrastructure + Auth Service" --body "$(cat <<'EOF'
+## Summary
+- Docker Compose with PostgreSQL (3 schemas: auth, company, financial)
+- Multi-module Maven backend (parent + shared + auth-service + api-gateway)
+- Auth Service with hexagonal architecture (domain, persistence, web layers)
+- JWT authentication (register, login, refresh, logout)
+- Spring Cloud Gateway MVC routing
+- Angular frontend layout shell (sidebar + header)
+- Login and register pages with auth guard/interceptor
+
+## Test plan
+- [ ] `docker-compose up -d postgres` starts PostgreSQL with 3 schemas
+- [ ] Auth Service starts on :8081 and runs Flyway migrations
+- [ ] API Gateway starts on :8080 and routes to Auth Service
+- [ ] POST /api/auth/register creates user and returns JWT
+- [ ] POST /api/auth/login authenticates and returns JWT
+- [ ] Frontend redirects to /login when not authenticated
+- [ ] Register and login flows work end-to-end
+- [ ] Swagger UI accessible at /swagger-ui.html
+- [ ] Domain tests pass: `./mvnw test -pl auth-service`
+- [ ] Frontend builds: `npm run build`
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+- [ ] **Step 3: Share PR URL for review**
+
+Output the PR URL so the user can review before merging to master.
 
 ---
 

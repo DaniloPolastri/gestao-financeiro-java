@@ -127,6 +127,14 @@ Documented in `docs/DESIGN-GUIDELINES.md`:
 - Animations: 150-200ms, ease-out, subtle only
 - Icons: Lucide Icons or PrimeIcons, 20px inline / 24px in cards
 
+## Git Workflow
+
+- **Toda feature nova ou plano de implementacao deve ser desenvolvido em uma branch separada** criada a partir da `master`.
+- Naming convention: `feature/<nome-curto>` (ex: `feature/phase1-infra-auth`, `feature/phase2-company-service`)
+- Fazer commits frequentes na branch durante o desenvolvimento.
+- **Ao finalizar, criar um Pull Request para `master`** para revisao antes do merge. Nunca fazer merge direto na master.
+- Nao fazer push para `master` sem PR aprovado.
+
 ## Constraints
 
 - Desktop-first (mobile is future)

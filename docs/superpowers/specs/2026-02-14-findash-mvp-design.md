@@ -31,6 +31,16 @@ FinDash e um dashboard financeiro para PMEs brasileiras. Centraliza contas a pag
 
 ---
 
+## Git Workflow
+
+- Cada fase de implementacao e desenvolvida em uma **branch separada** a partir da `master`
+- Naming: `feature/<nome>` (ex: `feature/phase1-infra-auth`, `feature/phase2-company-service`)
+- Commits frequentes durante o desenvolvimento
+- Ao finalizar a fase, **criar Pull Request para `master`** para revisao antes do merge
+- Nunca fazer merge direto na master sem PR aprovado
+
+---
+
 ## Topologia dos Microservices
 
 ```
