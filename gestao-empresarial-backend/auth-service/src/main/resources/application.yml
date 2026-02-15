@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/findash?currentSchema=auth_schema
+    username: findash
+    password: findash_dev
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: auth_schema
+        format_sql: true
+    show-sql: false
+  flyway:
+    schemas: auth_schema
+    locations: classpath:db/migration
+
+server:
+  port: 8081
+
+app:
+  jwt:
+    secret: findash-dev-secret-key-that-is-at-least-32-bytes-long-for-hmac
+    access-token-expiration-ms: 900000
+    refresh-token-expiration-ms: 2592000000
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
