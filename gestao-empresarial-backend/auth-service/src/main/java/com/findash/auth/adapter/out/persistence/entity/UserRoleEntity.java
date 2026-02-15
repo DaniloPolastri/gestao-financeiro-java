@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "user_roles", schema = "auth_schema",
-       uniqueConstraints = @UniqueConstraint(columns = {"user_id", "company_id"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "company_id"}))
 public class UserRoleEntity extends BaseEntity {
 
     @Column(name = "user_id", nullable = false)
