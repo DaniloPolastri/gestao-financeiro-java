@@ -1,0 +1,26 @@
+<div class="p-6">
+  <h1 class="text-xl font-bold text-gray-900">FinDash</h1>
+</div>
+<nav class="px-3">
+  @for (item of mainNav; track item.route) {
+    <a
+      [routerLink]="item.route"
+      routerLinkActive="bg-blue-50 text-blue-700 border-blue-500"
+      class="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 mb-1"
+    >
+      <i [class]="item.icon + ' text-base'"></i>
+      {{ item.label }}
+    </a>
+  }
+  <div class="border-t border-gray-200 my-4"></div>
+  @for (item of settingsNav; track item.route) {
+    <a
+      [routerLink]="item.route"
+      routerLinkActive="bg-blue-50 text-blue-700 border-blue-500"
+      class="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 mb-1"
+    >
+      <i [class]="item.icon + ' text-base'"></i>
+      {{ item.label }}
+    </a>
+  }
+</nav>
