@@ -1,14 +1,46 @@
 <div class="flex items-center justify-between h-full px-6">
   <div></div>
   <div class="flex items-center gap-4">
-    <button class="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-200 rounded-md hover:bg-gray-50">
-      <i class="pi pi-building text-gray-500"></i>
-      <span class="text-gray-700">Selecionar empresa</span>
-      <i class="pi pi-chevron-down text-xs text-gray-400"></i>
-    </button>
-    <button class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-50">
-      <i class="pi pi-user text-gray-500"></i>
-      <span class="text-gray-700">Perfil</span>
+    <!-- Company selector -->
+    <div class="relative">
+      <button
+        (click)="toggleDropdown()"
+        class="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-200 rounded-md hover:bg-gray-50"
+      >
+        <i class="pi pi-building text-gray-500"></i>
+        <span class="text-gray-700">
+          {{ companyService.activeCompany()?.name ?? 'Selecionar empresa' }}
+        </span>
+        <i class="pi pi-chevron-down text-xs text-gray-400"></i>
+      </button>
+
+      @if (dropdownOpen()) {
+        <div
+          class="absolute right-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+        >
+          @for (company of companyService.companies(); track company.id) {
+            <button
+              (click)="selectCompany(company)"
+              class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center justify-between"
+              [class.bg-blue-50]="company.id === companyService.activeCompany()?.id"
+            >
+              <span class="text-gray-900">{{ company.name }}</span>
+              @if (company.id === companyService.activeCompany()?.id) {
+                <i class="pi pi-check text-blue-600 text-xs"></i>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Logout -->
+    <button
+      (click)="logout()"
+      class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-50"
+    >
+      <i class="pi pi-sign-out text-gray-500"></i>
+      <span class="text-gray-700">Sair</span>
     </button>
   </div>
 </div>
