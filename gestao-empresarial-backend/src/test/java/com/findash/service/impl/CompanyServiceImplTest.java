@@ -347,29 +347,27 @@ class CompanyServiceImplTest {
 
     @Test
     void updateMemberRole_success() {
-        UUID targetUserId = UUID.randomUUID();
-
         UserRole adminRole = new UserRole();
         adminRole.setUserId(userId);
         adminRole.setCompanyId(companyId);
         adminRole.setRole(Role.ADMIN);
 
         UserRole targetRole = new UserRole();
-        targetRole.setId(memberId);
-        targetRole.setUserId(targetUserId);
+        targetRole.setUserId(memberId);
         targetRole.setCompanyId(companyId);
         targetRole.setRole(Role.EDITOR);
 
         var request = new UpdateMemberRoleRequestDTO(Role.VIEWER);
 
-        // Company has a different owner
+        // Company has a different owner (not memberId)
         Company comp = new Company("Test", null, null, UUID.randomUUID());
         comp.setId(companyId);
 
         when(companyRepository.findById(companyId)).thenReturn(Optional.of(comp));
         when(userRoleRepository.findByUserIdAndCompanyId(userId, companyId))
                 .thenReturn(Optional.of(adminRole));
-        when(userRoleRepository.findById(memberId)).thenReturn(Optional.of(targetRole));
+        when(userRoleRepository.findByUserIdAndCompanyId(memberId, companyId))
+                .thenReturn(Optional.of(targetRole));
 
         companyService.updateMemberRole(companyId, memberId, request, userId);
 
@@ -379,19 +377,14 @@ class CompanyServiceImplTest {
 
     @Test
     void updateMemberRole_owner_throwsForbidden() {
+        UUID ownerUserId = memberId; // memberId IS the owner
+
         UserRole adminRole = new UserRole();
         adminRole.setUserId(userId);
         adminRole.setCompanyId(companyId);
         adminRole.setRole(Role.ADMIN);
 
-        UUID ownerUserId = userId; // The company owner
-        UserRole ownerRole = new UserRole();
-        ownerRole.setId(memberId);
-        ownerRole.setUserId(ownerUserId);
-        ownerRole.setCompanyId(companyId);
-        ownerRole.setRole(Role.ADMIN);
-
-        // Company owner IS the target
+        // Company owner IS the target (memberId == ownerId)
         Company comp = new Company("Test", null, null, ownerUserId);
         comp.setId(companyId);
 
@@ -400,7 +393,6 @@ class CompanyServiceImplTest {
         when(companyRepository.findById(companyId)).thenReturn(Optional.of(comp));
         when(userRoleRepository.findByUserIdAndCompanyId(userId, companyId))
                 .thenReturn(Optional.of(adminRole));
-        when(userRoleRepository.findById(memberId)).thenReturn(Optional.of(ownerRole));
 
         assertThrows(ForbiddenOperationException.class,
                 () -> companyService.updateMemberRole(companyId, memberId, request, userId));
@@ -409,19 +401,17 @@ class CompanyServiceImplTest {
 
     @Test
     void updateMemberRole_lastAdmin_throwsException() {
-        UUID targetUserId = UUID.randomUUID();
-
         UserRole adminRole = new UserRole();
         adminRole.setUserId(userId);
         adminRole.setCompanyId(companyId);
         adminRole.setRole(Role.ADMIN);
 
         UserRole targetRole = new UserRole();
-        targetRole.setId(memberId);
-        targetRole.setUserId(targetUserId);
+        targetRole.setUserId(memberId);
         targetRole.setCompanyId(companyId);
         targetRole.setRole(Role.ADMIN);
 
+        // Owner is someone else (not memberId)
         Company comp = new Company("Test", null, null, UUID.randomUUID());
         comp.setId(companyId);
 
@@ -430,7 +420,8 @@ class CompanyServiceImplTest {
         when(companyRepository.findById(companyId)).thenReturn(Optional.of(comp));
         when(userRoleRepository.findByUserIdAndCompanyId(userId, companyId))
                 .thenReturn(Optional.of(adminRole));
-        when(userRoleRepository.findById(memberId)).thenReturn(Optional.of(targetRole));
+        when(userRoleRepository.findByUserIdAndCompanyId(memberId, companyId))
+                .thenReturn(Optional.of(targetRole));
         when(userRoleRepository.countByCompanyIdAndRole(companyId, Role.ADMIN)).thenReturn(1L);
 
         assertThrows(BusinessRuleException.class,
@@ -440,64 +431,64 @@ class CompanyServiceImplTest {
 
     @Test
     void removeMember_success() {
-        UUID targetUserId = UUID.randomUUID();
-
         UserRole adminRole = new UserRole();
         adminRole.setUserId(userId);
         adminRole.setCompanyId(companyId);
         adminRole.setRole(Role.ADMIN);
 
         CompanyMember targetMember = new CompanyMember();
-        targetMember.setId(memberId);
         targetMember.setCompanyId(companyId);
-        targetMember.setUserId(targetUserId);
+        targetMember.setUserId(memberId);
         targetMember.setInvitedEmail("target@email.com");
         targetMember.setStatus(MemberStatus.ACTIVE);
 
+        // Owner is someone else (not memberId)
         Company comp = new Company("Test", null, null, UUID.randomUUID());
         comp.setId(companyId);
 
         UserRole targetRole = new UserRole();
-        targetRole.setUserId(targetUserId);
+        targetRole.setUserId(memberId);
         targetRole.setCompanyId(companyId);
         targetRole.setRole(Role.EDITOR);
 
         when(companyRepository.findById(companyId)).thenReturn(Optional.of(comp));
         when(userRoleRepository.findByUserIdAndCompanyId(userId, companyId))
                 .thenReturn(Optional.of(adminRole));
-        when(companyMemberRepository.findById(memberId)).thenReturn(Optional.of(targetMember));
-        when(userRoleRepository.findByUserIdAndCompanyId(targetUserId, companyId))
+        when(companyMemberRepository.findByCompanyIdAndUserId(companyId, memberId))
+                .thenReturn(Optional.of(targetMember));
+        when(userRoleRepository.findByUserIdAndCompanyId(memberId, companyId))
                 .thenReturn(Optional.of(targetRole));
 
         companyService.removeMember(companyId, memberId, userId);
 
         assertEquals(MemberStatus.REMOVED, targetMember.getStatus());
         verify(companyMemberRepository).save(targetMember);
-        verify(userRoleRepository).deleteByUserIdAndCompanyId(targetUserId, companyId);
+        verify(userRoleRepository).deleteByUserIdAndCompanyId(memberId, companyId);
     }
 
     @Test
     void removeMember_owner_throwsForbidden() {
+        UUID ownerUserId = memberId; // memberId IS the owner
+
         UserRole adminRole = new UserRole();
         adminRole.setUserId(userId);
         adminRole.setCompanyId(companyId);
         adminRole.setRole(Role.ADMIN);
 
-        UUID ownerUserId = UUID.randomUUID();
         CompanyMember ownerMember = new CompanyMember();
-        ownerMember.setId(memberId);
         ownerMember.setCompanyId(companyId);
         ownerMember.setUserId(ownerUserId);
         ownerMember.setStatus(MemberStatus.ACTIVE);
 
-        // Company owner IS the target
+        // Company owner IS the target (memberId == ownerId)
         Company comp = new Company("Test", null, null, ownerUserId);
         comp.setId(companyId);
 
         when(companyRepository.findById(companyId)).thenReturn(Optional.of(comp));
         when(userRoleRepository.findByUserIdAndCompanyId(userId, companyId))
                 .thenReturn(Optional.of(adminRole));
-        when(companyMemberRepository.findById(memberId)).thenReturn(Optional.of(ownerMember));
+        when(companyMemberRepository.findByCompanyIdAndUserId(companyId, memberId))
+                .thenReturn(Optional.of(ownerMember));
 
         assertThrows(ForbiddenOperationException.class,
                 () -> companyService.removeMember(companyId, memberId, userId));

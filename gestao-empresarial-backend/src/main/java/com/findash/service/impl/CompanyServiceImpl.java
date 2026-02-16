@@ -229,23 +229,23 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = findCompanyOrThrow(companyId);
         requireAdmin(userId, companyId);
 
-        UserRole targetRole = userRoleRepository.findById(memberId)
-                .orElseThrow(() -> new ResourceNotFoundException("UserRole", memberId));
-
-        if (targetRole.getUserId().equals(company.getOwnerId())) {
+        if (company.getOwnerId().equals(memberId)) {
             throw new ForbiddenOperationException("Nao e possivel alterar role do proprietario");
         }
 
+        UserRole memberRole = userRoleRepository.findByUserIdAndCompanyId(memberId, companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Member", memberId));
+
         // If target is currently ADMIN and we're demoting, check if they're the last ADMIN
-        if (targetRole.getRole() == Role.ADMIN && request.role() != Role.ADMIN) {
+        if (memberRole.getRole() == Role.ADMIN && request.role() != Role.ADMIN) {
             long adminCount = userRoleRepository.countByCompanyIdAndRole(companyId, Role.ADMIN);
             if (adminCount <= 1) {
                 throw new BusinessRuleException("Nao e possivel remover o ultimo ADMIN da empresa");
             }
         }
 
-        targetRole.setRole(request.role());
-        userRoleRepository.save(targetRole);
+        memberRole.setRole(request.role());
+        userRoleRepository.save(memberRole);
     }
 
     @Override
@@ -254,7 +254,7 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = findCompanyOrThrow(companyId);
         requireAdmin(userId, companyId);
 
-        CompanyMember targetMember = companyMemberRepository.findById(memberId)
+        CompanyMember targetMember = companyMemberRepository.findByCompanyIdAndUserId(companyId, memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("CompanyMember", memberId));
 
         if (targetMember.getUserId() != null && targetMember.getUserId().equals(company.getOwnerId())) {
