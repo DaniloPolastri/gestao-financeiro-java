@@ -15,7 +15,7 @@ spring:
         format_sql: true
     show-sql: false
   flyway:
-    schemas: auth_schema
+    schemas: auth_schema,company_schema
     locations: classpath:db/migration
 
 server:

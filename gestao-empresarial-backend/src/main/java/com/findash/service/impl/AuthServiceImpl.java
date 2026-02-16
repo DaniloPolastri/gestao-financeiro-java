@@ -1,11 +1,15 @@
 package com.findash.service.impl;
 
 import com.findash.dto.*;
+import com.findash.entity.MemberStatus;
 import com.findash.entity.RefreshToken;
+import com.findash.entity.Role;
 import com.findash.entity.User;
+import com.findash.entity.UserRole;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.AuthMapper;
+import com.findash.repository.CompanyMemberRepository;
 import com.findash.repository.RefreshTokenRepository;
 import com.findash.repository.UserRepository;
 import com.findash.repository.UserRoleRepository;
@@ -26,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final CompanyMemberRepository companyMemberRepository;
     private final JwtTokenProvider tokenProvider;
     private final AuthMapper mapper;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -34,12 +39,14 @@ public class AuthServiceImpl implements AuthService {
     public AuthServiceImpl(UserRepository userRepository,
                            UserRoleRepository userRoleRepository,
                            RefreshTokenRepository refreshTokenRepository,
+                           CompanyMemberRepository companyMemberRepository,
                            JwtTokenProvider tokenProvider,
                            AuthMapper mapper,
                            @Value("${app.jwt.refresh-token-expiration-ms}") long refreshTokenExpirationMs) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.companyMemberRepository = companyMemberRepository;
         this.tokenProvider = tokenProvider;
         this.mapper = mapper;
         this.passwordEncoder = new BCryptPasswordEncoder();
@@ -56,6 +63,22 @@ public class AuthServiceImpl implements AuthService {
         User user = new User(request.name(), request.email(),
                               passwordEncoder.encode(request.password()));
         user = userRepository.save(user);
+
+        // Resolve pending invites
+        var pendingInvites = companyMemberRepository
+                .findByInvitedEmailAndStatus(request.email(), MemberStatus.INVITED);
+        for (var invite : pendingInvites) {
+            invite.setUserId(user.getId());
+            invite.setStatus(MemberStatus.ACTIVE);
+            invite.setJoinedAt(Instant.now());
+            companyMemberRepository.save(invite);
+
+            UserRole role = new UserRole();
+            role.setUserId(user.getId());
+            role.setCompanyId(invite.getCompanyId());
+            role.setRole(Role.EDITOR); // default role for invited users
+            userRoleRepository.save(role);
+        }
 
         return createAuthResponse(user);
     }

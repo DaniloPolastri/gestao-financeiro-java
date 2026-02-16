@@ -1,10 +1,15 @@
 package com.findash.service.impl;
 
 import com.findash.dto.*;
+import com.findash.entity.CompanyMember;
+import com.findash.entity.MemberStatus;
+import com.findash.entity.Role;
 import com.findash.entity.User;
+import com.findash.entity.UserRole;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.AuthMapper;
+import com.findash.repository.CompanyMemberRepository;
 import com.findash.repository.RefreshTokenRepository;
 import com.findash.repository.UserRepository;
 import com.findash.repository.UserRoleRepository;
@@ -29,6 +34,7 @@ class AuthServiceImplTest {
     @Mock private UserRepository userRepository;
     @Mock private UserRoleRepository userRoleRepository;
     @Mock private RefreshTokenRepository refreshTokenRepository;
+    @Mock private CompanyMemberRepository companyMemberRepository;
     @Mock private JwtTokenProvider tokenProvider;
     @Mock private AuthMapper mapper;
 
@@ -37,7 +43,7 @@ class AuthServiceImplTest {
     @BeforeEach
     void setUp() {
         authService = new AuthServiceImpl(userRepository, userRoleRepository,
-                refreshTokenRepository, tokenProvider, mapper, 2592000000L);
+                refreshTokenRepository, companyMemberRepository, tokenProvider, mapper, 2592000000L);
     }
 
     @Test
@@ -68,6 +74,8 @@ class AuthServiceImplTest {
         when(mapper.toAuthResponse(anyString(), anyString(), any()))
                 .thenReturn(new AuthResponseDTO("jwt", "refresh",
                         new UserResponseDTO(UUID.randomUUID(), "Test", "new@email.com")));
+        when(companyMemberRepository.findByInvitedEmailAndStatus("new@email.com", MemberStatus.INVITED))
+                .thenReturn(List.of());
 
         AuthResponseDTO result = authService.register(
                 new RegisterRequestDTO("Test", "new@email.com", "password"));
@@ -75,5 +83,35 @@ class AuthServiceImplTest {
         assertNotNull(result);
         assertEquals("new@email.com", result.user().email());
         verify(userRepository).save(any());
+    }
+
+    @Test
+    void register_withPendingInvites_resolvesInvites() {
+        when(userRepository.existsByEmail("new@email.com")).thenReturn(false);
+        when(userRepository.save(any())).thenAnswer(i -> {
+            User u = i.getArgument(0);
+            u.setId(UUID.randomUUID());
+            return u;
+        });
+        when(userRoleRepository.findByUserId(any())).thenReturn(List.of());
+        when(tokenProvider.generateAccessToken(any(), anyString(), anyList())).thenReturn("jwt");
+        when(refreshTokenRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(mapper.toAuthResponse(anyString(), anyString(), any()))
+                .thenReturn(new AuthResponseDTO("jwt", "refresh",
+                        new UserResponseDTO(UUID.randomUUID(), "New", "new@email.com")));
+
+        CompanyMember pendingInvite = new CompanyMember();
+        pendingInvite.setCompanyId(UUID.randomUUID());
+        pendingInvite.setInvitedEmail("new@email.com");
+        pendingInvite.setStatus(MemberStatus.INVITED);
+        when(companyMemberRepository.findByInvitedEmailAndStatus("new@email.com", MemberStatus.INVITED))
+                .thenReturn(List.of(pendingInvite));
+        when(companyMemberRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        authService.register(new RegisterRequestDTO("New", "new@email.com", "password"));
+
+        verify(companyMemberRepository).save(argThat(m ->
+                m.getStatus() == MemberStatus.ACTIVE && m.getUserId() != null));
+        verify(userRoleRepository, atLeast(1)).save(any());
     }
 }

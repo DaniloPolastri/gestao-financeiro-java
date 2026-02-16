@@ -4,6 +4,7 @@ import com.findash.entity.Role;
 import com.findash.entity.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
@@ -12,4 +13,5 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
     void deleteByUserIdAndCompanyId(UUID userId, UUID companyId);
     boolean existsByUserIdAndCompanyId(UUID userId, UUID companyId);
     long countByCompanyIdAndRole(UUID companyId, Role role);
+    Optional<UserRole> findByUserIdAndCompanyId(UUID userId, UUID companyId);
 }
