@@ -1,0 +1,56 @@
+<div class="p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Clientes</h1>
+    <a routerLink="novo"
+       class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
+      Novo Cliente
+    </a>
+  </div>
+
+  @if (error()) {
+    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="text-sm text-gray-500">Carregando...</div>
+  } @else if (clients().length === 0) {
+    <div class="text-center py-12">
+      <p class="text-gray-500 text-sm">Nenhum cliente cadastrado.</p>
+      <a routerLink="novo" class="text-blue-600 text-sm hover:underline mt-2 inline-block">
+        Cadastrar primeiro cliente
+      </a>
+    </div>
+  } @else {
+    <div class="border border-gray-200 rounded-lg overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th class="text-left px-4 py-3 font-medium text-gray-700">Nome</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-700">CNPJ/CPF</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-700">Email</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-700">Telefone</th>
+            <th class="text-right px-4 py-3 font-medium text-gray-700">Acoes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of clients(); track client.id) {
+            <tr class="border-b border-gray-100 hover:bg-gray-50">
+              <td class="px-4 py-3 text-gray-900">{{ client.name }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ client.document || '—' }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ client.email || '—' }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ client.phone || '—' }}</td>
+              <td class="px-4 py-3 text-right">
+                <a [routerLink]="[client.id, 'editar']"
+                   class="text-blue-600 hover:underline mr-3">Editar</a>
+                <button (click)="deleteClient(client)"
+                        class="text-red-600 hover:underline">Excluir</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
