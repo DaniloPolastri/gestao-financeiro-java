@@ -8,6 +8,7 @@ import com.findash.exception.ForbiddenOperationException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.CompanyMapper;
 import com.findash.repository.*;
+import com.findash.service.CategoryService;
 import com.findash.service.CompanyService;
 import com.findash.util.CnpjValidator;
 import org.springframework.stereotype.Service;
@@ -26,17 +27,20 @@ public class CompanyServiceImpl implements CompanyService {
     private final UserRoleRepository userRoleRepository;
     private final UserRepository userRepository;
     private final CompanyMapper companyMapper;
+    private final CategoryService categoryService;
 
     public CompanyServiceImpl(CompanyRepository companyRepository,
                               CompanyMemberRepository companyMemberRepository,
                               UserRoleRepository userRoleRepository,
                               UserRepository userRepository,
-                              CompanyMapper companyMapper) {
+                              CompanyMapper companyMapper,
+                              CategoryService categoryService) {
         this.companyRepository = companyRepository;
         this.companyMemberRepository = companyMemberRepository;
         this.userRoleRepository = userRoleRepository;
         this.userRepository = userRepository;
         this.companyMapper = companyMapper;
+        this.categoryService = categoryService;
     }
 
     @Override
@@ -73,6 +77,8 @@ public class CompanyServiceImpl implements CompanyService {
         userRole.setCompanyId(company.getId());
         userRole.setRole(Role.ADMIN);
         userRoleRepository.save(userRole);
+
+        categoryService.seedDefaultCategories(company.getId());
 
         return companyMapper.toCompanyResponse(company, Role.ADMIN.name(), user.getName());
     }
