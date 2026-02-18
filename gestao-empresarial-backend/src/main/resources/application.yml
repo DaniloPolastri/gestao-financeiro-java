@@ -17,6 +17,7 @@ spring:
   flyway:
     schemas: auth_schema,company_schema,financial_schema
     locations: classpath:db/migration
+    repair-on-migrate: true
 
 server:
   port: 8080

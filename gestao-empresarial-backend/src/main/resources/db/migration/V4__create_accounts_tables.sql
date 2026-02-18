@@ -7,6 +7,7 @@ CREATE TABLE financial_schema.recurrences (
     end_date DATE,
     max_occurrences INT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     CONSTRAINT fk_recurrence_company FOREIGN KEY (company_id)
         REFERENCES company_schema.companies(id) ON DELETE CASCADE
 );
