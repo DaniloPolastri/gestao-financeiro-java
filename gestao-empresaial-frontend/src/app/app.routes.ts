@@ -41,6 +41,25 @@ export const routes: Routes = [
           import('./features/company/company.routes').then((m) => m.companyRoutes),
       },
       {
+        path: 'contas-a-pagar',
+        loadChildren: () =>
+          import('./features/accounts-payable/accounts-payable.routes').then(
+            (m) => m.accountsPayableRoutes,
+          ),
+      },
+      {
+        path: 'contas-a-receber',
+        loadChildren: () =>
+          import('./features/accounts-receivable/accounts-receivable.routes').then(
+            (m) => m.accountsReceivableRoutes,
+          ),
+      },
+      {
+        path: 'importacao',
+        loadChildren: () =>
+          import('./features/import/import.routes').then((m) => m.importRoutes),
+      },
+      {
         path: 'fornecedores',
         loadChildren: () =>
           import('./features/suppliers/suppliers.routes').then((m) => m.suppliersRoutes),
