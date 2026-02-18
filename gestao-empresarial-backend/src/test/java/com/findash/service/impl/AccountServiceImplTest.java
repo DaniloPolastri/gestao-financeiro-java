@@ -234,7 +234,7 @@ class AccountServiceImplTest {
     // --- DELETE ---
 
     @Test
-    void delete_setsInactive() {
+    void delete_hardDeletes() {
         UUID accountId = UUID.randomUUID();
         Account account = createMockAccount(accountId, AccountType.PAYABLE, AccountStatus.PENDING, new BigDecimal("1000.00"));
 
@@ -242,8 +242,7 @@ class AccountServiceImplTest {
 
         accountService.delete(companyId, accountId);
 
-        assertFalse(account.isActive());
-        verify(accountRepository).save(account);
+        verify(accountRepository).delete(account);
     }
 
     // --- LIST ---

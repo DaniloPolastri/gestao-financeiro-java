@@ -188,8 +188,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void delete(UUID companyId, UUID accountId) {
         Account account = findOrThrow(companyId, accountId);
-        account.setActive(false);
-        accountRepository.save(account);
+        accountRepository.delete(account);
     }
 
     @Override
