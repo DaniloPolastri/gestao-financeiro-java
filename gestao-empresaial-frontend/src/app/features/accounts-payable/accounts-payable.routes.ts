@@ -9,20 +9,4 @@ export const accountsPayableRoutes: Routes = [
       ),
     data: { type: 'PAYABLE' },
   },
-  {
-    path: 'novo',
-    loadComponent: () =>
-      import('../accounts/pages/account-form/account-form.component').then(
-        (m) => m.AccountFormComponent,
-      ),
-    data: { type: 'PAYABLE' },
-  },
-  {
-    path: ':id/editar',
-    loadComponent: () =>
-      import('../accounts/pages/account-form/account-form.component').then(
-        (m) => m.AccountFormComponent,
-      ),
-    data: { type: 'PAYABLE' },
-  },
 ];
