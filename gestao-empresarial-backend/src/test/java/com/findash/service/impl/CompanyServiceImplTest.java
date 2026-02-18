@@ -8,6 +8,7 @@ import com.findash.exception.ForbiddenOperationException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.CompanyMapper;
 import com.findash.repository.*;
+import com.findash.service.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,7 @@ class CompanyServiceImplTest {
     @Mock private UserRoleRepository userRoleRepository;
     @Mock private UserRepository userRepository;
     @Mock private CompanyMapper companyMapper;
+    @Mock private CategoryService categoryService;
 
     private CompanyServiceImpl companyService;
 
@@ -45,7 +47,7 @@ class CompanyServiceImplTest {
     void setUp() {
         companyService = new CompanyServiceImpl(
                 companyRepository, companyMemberRepository,
-                userRoleRepository, userRepository, companyMapper);
+                userRoleRepository, userRepository, companyMapper, categoryService);
 
         userId = UUID.randomUUID();
         companyId = UUID.randomUUID();

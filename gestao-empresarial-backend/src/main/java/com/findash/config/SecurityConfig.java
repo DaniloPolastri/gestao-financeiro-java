@@ -1,5 +1,6 @@
 package com.findash.config;
 
+import com.findash.security.CompanyContextFilter;
 import com.findash.security.JwtAuthenticationFilter;
 import com.findash.security.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +34,9 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .addFilterBefore(new JwtAuthenticationFilter(tokenProvider),
-                             UsernamePasswordAuthenticationFilter.class);
+                             UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(new CompanyContextFilter(),
+                            JwtAuthenticationFilter.class);
 
         return http.build();
     }
