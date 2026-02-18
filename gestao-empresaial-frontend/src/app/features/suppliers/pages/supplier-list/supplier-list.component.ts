@@ -26,6 +26,12 @@ export class SupplierListComponent implements OnInit {
     });
   }
 
+  protected readonly openMenuId = signal<string | null>(null);
+
+  protected toggleMenu(id: string) {
+    this.openMenuId.update((current) => (current === id ? null : id));
+  }
+
   protected deleteSupplier(supplier: SupplierResponse) {
     if (!confirm(`Deseja realmente excluir o fornecedor "${supplier.name}"?`)) return;
 

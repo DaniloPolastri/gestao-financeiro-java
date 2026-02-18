@@ -1,56 +1,90 @@
-<div class="p-6">
-  <div class="flex items-center justify-between mb-6">
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-6">
+  <div>
     <h1 class="text-2xl font-bold text-gray-900">Fornecedores</h1>
-    <a routerLink="novo"
-       class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-      Novo Fornecedor
+    <p class="mt-1 text-sm text-gray-500">Base de dados de parceiros comerciais.</p>
+  </div>
+  <a
+    routerLink="novo"
+    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-150"
+  >
+    Novo Fornecedor
+  </a>
+</div>
+
+@if (error()) {
+  <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+    {{ error() }}
+  </div>
+}
+
+@if (loading()) {
+  <div class="text-sm text-gray-500">Carregando...</div>
+} @else if (suppliers().length === 0) {
+  <div class="text-center py-12">
+    <p class="text-gray-500 text-sm">Nenhum fornecedor cadastrado.</p>
+    <a routerLink="novo" class="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 inline-block">
+      Cadastrar primeiro fornecedor
     </a>
   </div>
-
-  @if (error()) {
-    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
-      {{ error() }}
-    </div>
-  }
-
-  @if (loading()) {
-    <div class="text-sm text-gray-500">Carregando...</div>
-  } @else if (suppliers().length === 0) {
-    <div class="text-center py-12">
-      <p class="text-gray-500 text-sm">Nenhum fornecedor cadastrado.</p>
-      <a routerLink="novo" class="text-blue-600 text-sm hover:underline mt-2 inline-block">
-        Cadastrar primeiro fornecedor
-      </a>
-    </div>
-  } @else {
-    <div class="border border-gray-200 rounded-lg overflow-hidden">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th class="text-left px-4 py-3 font-medium text-gray-700">Nome</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-700">CNPJ/CPF</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-700">Email</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-700">Telefone</th>
-            <th class="text-right px-4 py-3 font-medium text-gray-700">Acoes</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (supplier of suppliers(); track supplier.id) {
-            <tr class="border-b border-gray-100 hover:bg-gray-50">
-              <td class="px-4 py-3 text-gray-900">{{ supplier.name }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ supplier.document || '—' }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ supplier.email || '—' }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ supplier.phone || '—' }}</td>
-              <td class="px-4 py-3 text-right">
-                <a [routerLink]="[supplier.id, 'editar']"
-                   class="text-blue-600 hover:underline mr-3">Editar</a>
-                <button (click)="deleteSupplier(supplier)"
-                        class="text-red-600 hover:underline">Excluir</button>
-              </td>
-            </tr>
+} @else {
+  <div class="grid grid-cols-2 gap-4">
+    @for (supplier of suppliers(); track supplier.id) {
+      <div class="border border-gray-200 rounded-lg p-5 hover:border-gray-300 transition-colors duration-150">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+              <span class="text-sm font-semibold text-gray-600">
+                {{ supplier.name.charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">{{ supplier.name }}</p>
+              @if (supplier.document) {
+                <p class="text-xs text-gray-500">{{ supplier.document }}</p>
+              }
+            </div>
+          </div>
+          <div class="relative">
+            <button
+              (click)="toggleMenu(supplier.id)"
+              class="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+            >
+              <i class="pi pi-ellipsis-h text-sm"></i>
+            </button>
+            @if (openMenuId() === supplier.id) {
+              <div class="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                <a
+                  [routerLink]="[supplier.id, 'editar']"
+                  class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Editar
+                </a>
+                <button
+                  (click)="deleteSupplier(supplier)"
+                  class="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  Excluir
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          @if (supplier.email) {
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+              <i class="pi pi-envelope text-xs"></i>
+              <span>{{ supplier.email }}</span>
+            </div>
           }
-        </tbody>
-      </table>
-    </div>
-  }
-</div>
+          @if (supplier.phone) {
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+              <i class="pi pi-phone text-xs"></i>
+              <span>{{ supplier.phone }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

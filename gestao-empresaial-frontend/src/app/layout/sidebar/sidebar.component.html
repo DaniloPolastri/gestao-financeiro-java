@@ -1,26 +1,42 @@
-<div class="p-6">
-  <h1 class="text-xl font-bold text-gray-900">FinDash</h1>
+<!-- Logo -->
+<div class="p-6 flex items-center gap-3">
+  <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+    <span class="text-white font-bold text-sm">F</span>
+  </div>
+  <span class="text-white text-lg font-bold">FinDash</span>
 </div>
-<nav class="px-3">
-  @for (item of mainNav; track item.route) {
-    <a
-      [routerLink]="item.route"
-      routerLinkActive="bg-blue-50 text-blue-700 border-blue-500"
-      class="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 mb-1"
-    >
-      <i [class]="item.icon + ' text-base'"></i>
-      {{ item.label }}
-    </a>
-  }
-  <div class="border-t border-gray-200 my-4"></div>
-  @for (item of settingsNav; track item.route) {
-    <a
-      [routerLink]="item.route"
-      routerLinkActive="bg-blue-50 text-blue-700 border-blue-500"
-      class="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 mb-1"
-    >
-      <i [class]="item.icon + ' text-base'"></i>
-      {{ item.label }}
-    </a>
+
+<!-- Navigation -->
+<nav class="flex-1 px-3 space-y-6">
+  @for (section of sections; track section.title) {
+    <div>
+      <p class="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-500">
+        {{ section.title }}
+      </p>
+      @for (item of section.items; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="bg-white/10 text-white"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+          class="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 mb-0.5 transition-colors duration-150"
+        >
+          <i [class]="item.icon + ' text-base'"></i>
+          {{ item.label }}
+        </a>
+      }
+    </div>
   }
 </nav>
+
+<!-- User Info -->
+<div class="p-4 border-t border-white/10">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-full bg-gray-600 flex items-center justify-center">
+      <span class="text-white text-xs font-medium">{{ userInitials }}</span>
+    </div>
+    <div class="min-w-0">
+      <p class="text-sm text-white font-medium truncate">{{ userName }}</p>
+      <p class="text-xs text-gray-500 truncate">{{ userEmail }}</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Contas a Receber</h1>
+    <p class="mt-1 text-sm text-gray-500">Acompanhe as entradas e faturamentos.</p>
+  </div>
+  <button
+    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-150"
+  >
+    <i class="pi pi-plus text-xs"></i>
+    Novo Recebimento
+  </button>
+</div>
+
+<!-- Table -->
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b border-gray-200">
+      <tr>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        <th class="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of mockData; track item.client) {
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="px-4 py-3 font-medium text-gray-900">{{ item.client }}</td>
+          <td class="px-4 py-3 text-gray-500">{{ item.date }}</td>
+          <td class="px-4 py-3">
+            <span class="text-blue-600 text-xs font-medium">{{ item.category }}</span>
+          </td>
+          <td class="px-4 py-3">
+            <span
+              class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full"
+              [class.bg-emerald-50]="item.status === 'Recebido'"
+              [class.text-emerald-700]="item.status === 'Recebido'"
+              [class.bg-blue-50]="item.status === 'Agendado'"
+              [class.text-blue-700]="item.status === 'Agendado'"
+              [class.bg-amber-50]="item.status === 'Pendente'"
+              [class.text-amber-700]="item.status === 'Pendente'"
+            >
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                [class.bg-emerald-500]="item.status === 'Recebido'"
+                [class.bg-blue-500]="item.status === 'Agendado'"
+                [class.bg-amber-500]="item.status === 'Pendente'"
+              ></span>
+              {{ item.status }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right font-mono text-emerald-600">{{ item.value }}</td>
+          <td class="px-4 py-3 text-right">
+            <button class="text-gray-400 hover:text-gray-600">
+              <i class="pi pi-ellipsis-h text-sm"></i>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
