@@ -1,0 +1,136 @@
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">{{ pageTitle() }}</h1>
+    <p class="mt-1 text-sm text-gray-500">{{ pageSubtitle() }}</p>
+  </div>
+  <button
+    (click)="openNew()"
+    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-150"
+  >
+    <i class="pi pi-plus text-xs"></i>
+    {{ newButtonLabel() }}
+  </button>
+</div>
+
+@if (error()) {
+  <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+    {{ error() }}
+  </div>
+}
+
+<!-- Tabs -->
+<div class="flex gap-2 mb-6">
+  @for (tab of tabs; track tab.key) {
+    <button
+      (click)="setTab(tab.key)"
+      class="px-4 py-1.5 text-sm rounded-full font-medium transition-colors duration-150"
+      [class.bg-blue-600]="activeTab() === tab.key"
+      [class.text-white]="activeTab() === tab.key"
+      [class.bg-gray-100]="activeTab() !== tab.key"
+      [class.text-gray-600]="activeTab() !== tab.key"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</div>
+
+@if (loading()) {
+  <div class="text-sm text-gray-500">Carregando...</div>
+} @else if (accounts().length === 0) {
+  <div class="text-center py-12">
+    <p class="text-gray-500 text-sm">Nenhuma conta encontrada.</p>
+    <button (click)="openNew()" class="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 inline-block">
+      Criar primeira conta
+    </button>
+  </div>
+} @else {
+  <div class="border border-gray-200 rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b border-gray-200">
+        <tr>
+          <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{{ entityLabel() }}</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Vencimento</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+          <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (account of accounts(); track account.id) {
+          <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">
+              {{ isPayable() ? (account.supplier?.name || '—') : (account.client?.name || '—') }}
+            </td>
+            <td class="px-4 py-3 text-gray-700">{{ account.description }}</td>
+            <td class="px-4 py-3 text-gray-500">{{ formatDate(account.dueDate) }}</td>
+            <td class="px-4 py-3">
+              <span class="text-blue-600 text-xs font-medium">{{ account.category?.name || '—' }}</span>
+            </td>
+            <td class="px-4 py-3">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full"
+                [class.bg-amber-50]="account.status === 'PENDING'"
+                [class.text-amber-700]="account.status === 'PENDING'"
+                [class.bg-red-50]="account.status === 'OVERDUE'"
+                [class.text-red-700]="account.status === 'OVERDUE'"
+                [class.bg-emerald-50]="account.status === 'PAID' || account.status === 'RECEIVED'"
+                [class.text-emerald-700]="account.status === 'PAID' || account.status === 'RECEIVED'"
+                [class.bg-blue-50]="account.status === 'PARTIAL'"
+                [class.text-blue-700]="account.status === 'PARTIAL'">
+                <span class="w-1.5 h-1.5 rounded-full"
+                  [class.bg-amber-500]="account.status === 'PENDING'"
+                  [class.bg-red-500]="account.status === 'OVERDUE'"
+                  [class.bg-emerald-500]="account.status === 'PAID' || account.status === 'RECEIVED'"
+                  [class.bg-blue-500]="account.status === 'PARTIAL'"></span>
+                {{ getStatusLabel(account.status) }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right font-mono"
+              [class.text-red-600]="isPayable()"
+              [class.text-emerald-600]="!isPayable()">
+              {{ formatCurrency(account.amount) }}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button (click)="openEdit(account.id)" class="text-gray-400 hover:text-gray-600 mr-2">
+                <i class="pi pi-pencil text-sm"></i>
+              </button>
+              <button (click)="deleteAccount(account.id)" class="text-gray-400 hover:text-red-600">
+                <i class="pi pi-trash text-sm"></i>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (totalPages() > 1) {
+    <div class="flex items-center justify-between mt-4">
+      <p class="text-xs text-gray-500">{{ totalElements() }} resultado(s)</p>
+      <div class="flex gap-1">
+        @for (p of pages(); track $index) {
+          <button (click)="goToPage($index)"
+            class="w-8 h-8 text-xs rounded-md"
+            [class.bg-blue-600]="currentPage() === $index"
+            [class.text-white]="currentPage() === $index"
+            [class.bg-gray-100]="currentPage() !== $index"
+            [class.text-gray-600]="currentPage() !== $index">
+            {{ $index + 1 }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+}
+
+<!-- Drawer -->
+<app-drawer [open]="drawerOpen()" [title]="drawerTitle()" (closed)="closeDrawer()">
+  <app-account-drawer-form
+    [type]="type"
+    [accountId]="editingId()"
+    (saved)="onSaved()"
+    (cancelled)="closeDrawer()"
+  />
+</app-drawer>

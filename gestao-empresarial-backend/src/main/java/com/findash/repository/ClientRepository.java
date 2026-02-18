@@ -14,7 +14,7 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
 
     Optional<Client> findByIdAndCompanyId(UUID id, UUID companyId);
 
-    boolean existsByCompanyIdAndNameIgnoreCase(UUID companyId, String name);
+    boolean existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(UUID companyId, String name);
 
-    boolean existsByCompanyIdAndDocument(UUID companyId, String document);
+    boolean existsByCompanyIdAndDocumentAndActiveTrue(UUID companyId, String document);
 }

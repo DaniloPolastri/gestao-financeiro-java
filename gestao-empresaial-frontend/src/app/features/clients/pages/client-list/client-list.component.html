@@ -4,12 +4,7 @@
     <h1 class="text-2xl font-bold text-gray-900">Clientes</h1>
     <p class="mt-1 text-sm text-gray-500">Gestao de carteira de clientes.</p>
   </div>
-  <a
-    routerLink="novo"
-    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-150"
-  >
-    Novo Cliente
-  </a>
+  <button (click)="openNew()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-150"><i class="pi pi-plus text-xs"></i> Novo Cliente</button>
 </div>
 
 @if (error()) {
@@ -23,9 +18,9 @@
 } @else if (clients().length === 0) {
   <div class="text-center py-12">
     <p class="text-gray-500 text-sm">Nenhum cliente cadastrado.</p>
-    <a routerLink="novo" class="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 inline-block">
+    <button (click)="openNew()" class="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 inline-block">
       Cadastrar primeiro cliente
-    </a>
+    </button>
   </div>
 } @else {
   <div class="border border-gray-200 rounded-lg overflow-hidden">
@@ -52,9 +47,7 @@
             </td>
             <td class="px-4 py-3 text-right font-mono text-gray-900">R$ 0,00</td>
             <td class="px-4 py-3 text-right">
-              <a [routerLink]="[client.id, 'editar']" class="text-gray-400 hover:text-gray-600 mr-2">
-                <i class="pi pi-pencil text-sm"></i>
-              </a>
+              <button (click)="openEdit(client.id)" class="text-gray-400 hover:text-gray-600 mr-2"><i class="pi pi-pencil text-sm"></i></button>
               <button (click)="deleteClient(client)" class="text-gray-400 hover:text-red-600">
                 <i class="pi pi-trash text-sm"></i>
               </button>
@@ -65,3 +58,11 @@
     </table>
   </div>
 }
+
+<app-drawer [open]="drawerOpen()" [title]="drawerTitle()" (closed)="closeDrawer()">
+  <app-client-drawer-form
+    [clientId]="editingId()"
+    (saved)="onSaved()"
+    (cancelled)="closeDrawer()"
+  />
+</app-drawer>

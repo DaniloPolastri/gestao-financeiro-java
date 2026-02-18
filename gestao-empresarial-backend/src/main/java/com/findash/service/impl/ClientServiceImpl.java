@@ -4,9 +4,11 @@ import com.findash.dto.client.CreateClientRequestDTO;
 import com.findash.dto.client.ClientResponseDTO;
 import com.findash.dto.client.UpdateClientRequestDTO;
 import com.findash.entity.Client;
+import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.ClientMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.ClientRepository;
 import com.findash.service.ClientService;
 import com.findash.util.CnpjValidator;
@@ -21,21 +23,24 @@ public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
+    private final AccountRepository accountRepository;
 
-    public ClientServiceImpl(ClientRepository clientRepository, ClientMapper clientMapper) {
+    public ClientServiceImpl(ClientRepository clientRepository, ClientMapper clientMapper,
+                             AccountRepository accountRepository) {
         this.clientRepository = clientRepository;
         this.clientMapper = clientMapper;
+        this.accountRepository = accountRepository;
     }
 
     @Override
     public ClientResponseDTO create(UUID companyId, CreateClientRequestDTO request) {
-        if (clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, request.name())) {
+        if (clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, request.name())) {
             throw new DuplicateResourceException("Ja existe um cliente com este nome");
         }
 
         String normalizedDoc = request.document() != null ? CnpjValidator.normalize(request.document()) : null;
         if (normalizedDoc != null && !normalizedDoc.isBlank()
-                && clientRepository.existsByCompanyIdAndDocument(companyId, normalizedDoc)) {
+                && clientRepository.existsByCompanyIdAndDocumentAndActiveTrue(companyId, normalizedDoc)) {
             throw new DuplicateResourceException("Ja existe um cliente com este documento");
         }
 
@@ -69,7 +74,7 @@ public class ClientServiceImpl implements ClientService {
         Client client = findOrThrow(companyId, clientId);
 
         if (!client.getName().equalsIgnoreCase(request.name())
-                && clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, request.name())) {
+                && clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, request.name())) {
             throw new DuplicateResourceException("Ja existe um cliente com este nome");
         }
 
@@ -86,8 +91,12 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void delete(UUID companyId, UUID clientId) {
         Client client = findOrThrow(companyId, clientId);
-        client.setActive(false);
-        clientRepository.save(client);
+
+        if (accountRepository.existsByClientId(clientId)) {
+            throw new BusinessRuleException("Nao e possivel excluir este cliente pois existem lancamentos vinculados a ele.");
+        }
+
+        clientRepository.delete(client);
     }
 
     private Client findOrThrow(UUID companyId, UUID clientId) {

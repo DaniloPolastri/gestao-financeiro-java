@@ -4,8 +4,9 @@ export const accountsReceivableRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/accounts-receivable-list/accounts-receivable-list.component').then(
-        (m) => m.AccountsReceivableListComponent,
+      import('../accounts/pages/account-list/account-list.component').then(
+        (m) => m.AccountListComponent,
       ),
+    data: { type: 'RECEIVABLE' },
   },
 ];

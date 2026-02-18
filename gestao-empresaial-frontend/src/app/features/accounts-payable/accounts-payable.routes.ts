@@ -4,8 +4,9 @@ export const accountsPayableRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/accounts-payable-list/accounts-payable-list.component').then(
-        (m) => m.AccountsPayableListComponent,
+      import('../accounts/pages/account-list/account-list.component').then(
+        (m) => m.AccountListComponent,
       ),
+    data: { type: 'PAYABLE' },
   },
 ];

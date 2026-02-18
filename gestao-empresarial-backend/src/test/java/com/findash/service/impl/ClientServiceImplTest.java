@@ -4,9 +4,11 @@ import com.findash.dto.client.CreateClientRequestDTO;
 import com.findash.dto.client.ClientResponseDTO;
 import com.findash.dto.client.UpdateClientRequestDTO;
 import com.findash.entity.Client;
+import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.ClientMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.ClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,13 +29,14 @@ class ClientServiceImplTest {
 
     @Mock private ClientRepository clientRepository;
     @Mock private ClientMapper clientMapper;
+    @Mock private AccountRepository accountRepository;
 
     private ClientServiceImpl clientService;
     private UUID companyId;
 
     @BeforeEach
     void setUp() {
-        clientService = new ClientServiceImpl(clientRepository, clientMapper);
+        clientService = new ClientServiceImpl(clientRepository, clientMapper, accountRepository);
         companyId = UUID.randomUUID();
     }
 
@@ -44,7 +47,7 @@ class ClientServiceImplTest {
         client.setId(UUID.randomUUID());
         var response = new ClientResponseDTO(client.getId(), "Cliente A", "11222333000181", "a@test.com", "11999990000", true, null, null);
 
-        when(clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, "Cliente A")).thenReturn(false);
+        when(clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Cliente A")).thenReturn(false);
         when(clientRepository.save(any(Client.class))).thenReturn(client);
         when(clientMapper.toResponse(any(Client.class))).thenReturn(response);
 
@@ -54,10 +57,24 @@ class ClientServiceImplTest {
     }
 
     @Test
-    void createClient_duplicateName_throws() {
+    void createClient_duplicateActiveName_throws() {
         var request = new CreateClientRequestDTO("Cliente A", null, null, null);
-        when(clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, "Cliente A")).thenReturn(true);
+        when(clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Cliente A")).thenReturn(true);
         assertThrows(DuplicateResourceException.class, () -> clientService.create(companyId, request));
+    }
+
+    @Test
+    void createClient_sameNameAsSoftDeleted_succeeds() {
+        var request = new CreateClientRequestDTO("Deletado", null, null, null);
+        var client = new Client(companyId, "Deletado");
+        client.setId(UUID.randomUUID());
+        var response = new ClientResponseDTO(client.getId(), "Deletado", null, null, null, true, null, null);
+
+        when(clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Deletado")).thenReturn(false);
+        when(clientRepository.save(any(Client.class))).thenReturn(client);
+        when(clientMapper.toResponse(any(Client.class))).thenReturn(response);
+
+        assertDoesNotThrow(() -> clientService.create(companyId, request));
     }
 
     @Test
@@ -78,14 +95,26 @@ class ClientServiceImplTest {
     }
 
     @Test
-    void deleteClient_setsInactive() {
+    void deleteClient_noLinkedAccounts_hardDeletes() {
         UUID clientId = UUID.randomUUID();
         var client = new Client(companyId, "A");
         client.setId(clientId);
         when(clientRepository.findByIdAndCompanyId(clientId, companyId)).thenReturn(Optional.of(client));
+        when(accountRepository.existsByClientId(clientId)).thenReturn(false);
 
         clientService.delete(companyId, clientId);
-        assertFalse(client.isActive());
-        verify(clientRepository).save(client);
+        verify(clientRepository).delete(client);
+    }
+
+    @Test
+    void deleteClient_withLinkedAccounts_throws() {
+        UUID clientId = UUID.randomUUID();
+        var client = new Client(companyId, "A");
+        client.setId(clientId);
+        when(clientRepository.findByIdAndCompanyId(clientId, companyId)).thenReturn(Optional.of(client));
+        when(accountRepository.existsByClientId(clientId)).thenReturn(true);
+
+        assertThrows(BusinessRuleException.class, () -> clientService.delete(companyId, clientId));
+        verify(clientRepository, never()).delete(any());
     }
 }

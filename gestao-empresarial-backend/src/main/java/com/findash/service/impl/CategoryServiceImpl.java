@@ -8,6 +8,7 @@ import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.CategoryMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.CategoryGroupRepository;
 import com.findash.repository.CategoryRepository;
 import com.findash.service.CategoryService;
@@ -23,13 +24,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryGroupRepository groupRepository;
     private final CategoryRepository categoryRepository;
+    private final AccountRepository accountRepository;
     private final CategoryMapper categoryMapper;
 
     public CategoryServiceImpl(CategoryGroupRepository groupRepository,
                                CategoryRepository categoryRepository,
+                               AccountRepository accountRepository,
                                CategoryMapper categoryMapper) {
         this.groupRepository = groupRepository;
         this.categoryRepository = categoryRepository;
+        this.accountRepository = accountRepository;
         this.categoryMapper = categoryMapper;
     }
 
@@ -85,6 +89,10 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BusinessRuleException("Nao e possivel excluir grupo com categorias vinculadas. Remova ou reclassifique as categorias primeiro.");
         }
 
+        if (accountRepository.existsByCategoryGroupId(groupId)) {
+            throw new BusinessRuleException("Nao e possivel excluir este grupo pois existem contas financeiras vinculadas a suas categorias.");
+        }
+
         groupRepository.delete(group);
     }
 
@@ -93,7 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
         groupRepository.findByIdAndCompanyId(request.groupId(), companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Grupo de categoria", request.groupId()));
 
-        if (categoryRepository.existsByGroupIdAndNameIgnoreCase(request.groupId(), request.name())) {
+        if (categoryRepository.existsByGroupIdAndNameIgnoreCaseAndActiveTrue(request.groupId(), request.name())) {
             throw new DuplicateResourceException("Ja existe uma categoria com este nome neste grupo");
         }
 
@@ -108,7 +116,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria", categoryId));
 
         if (!category.getName().equalsIgnoreCase(request.name())
-                && categoryRepository.existsByGroupIdAndNameIgnoreCase(category.getGroupId(), request.name())) {
+                && categoryRepository.existsByGroupIdAndNameIgnoreCaseAndActiveTrue(category.getGroupId(), request.name())) {
             throw new DuplicateResourceException("Ja existe uma categoria com este nome neste grupo");
         }
 
@@ -121,8 +129,12 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(UUID companyId, UUID categoryId) {
         Category category = categoryRepository.findByIdAndCompanyId(categoryId, companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria", categoryId));
-        category.setActive(false);
-        categoryRepository.save(category);
+
+        if (accountRepository.existsByCategoryId(categoryId)) {
+            throw new BusinessRuleException("Nao e possivel excluir esta categoria pois existem lancamentos vinculados a ela.");
+        }
+
+        categoryRepository.delete(category);
     }
 
     @Override
