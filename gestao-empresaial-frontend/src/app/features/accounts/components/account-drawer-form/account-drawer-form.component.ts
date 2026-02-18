@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, OnInit, input, output, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, input, output, effect } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AccountService } from '../../services/account.service';
 import { AccountType } from '../../models/account.model';
@@ -77,6 +77,7 @@ export class AccountDrawerFormComponent implements OnInit {
         this.isEdit.set(false);
         this.form.reset({ description: '', amount: 0, dueDate: '', categoryId: '', supplierId: '', clientId: '', notes: '' });
         this.showRecurrence.set(false);
+        this.recurrenceForm.reset({ frequency: 'MONTHLY', endDate: '', maxOccurrences: 0 });
         this.error.set(null);
       }
     });
@@ -88,9 +89,7 @@ export class AccountDrawerFormComponent implements OnInit {
     this.categoryService.loadGroups().subscribe();
   }
 
-  protected get isPayable() {
-    return this.type() === 'PAYABLE';
-  }
+  protected readonly isPayable = computed(() => this.type() === 'PAYABLE');
 
   protected toggleRecurrence() {
     this.showRecurrence.update((v) => !v);
@@ -122,11 +121,14 @@ export class AccountDrawerFormComponent implements OnInit {
         });
     } else {
       const recurrence = this.showRecurrence()
-        ? {
-            frequency: this.recurrenceForm.getRawValue().frequency as 'MONTHLY' | 'WEEKLY' | 'BIWEEKLY' | 'YEARLY',
-            endDate: this.recurrenceForm.getRawValue().endDate || undefined,
-            maxOccurrences: this.recurrenceForm.getRawValue().maxOccurrences || undefined,
-          }
+        ? (() => {
+            const { frequency, endDate, maxOccurrences } = this.recurrenceForm.getRawValue();
+            return {
+              frequency: frequency as 'MONTHLY' | 'WEEKLY' | 'BIWEEKLY' | 'YEARLY',
+              endDate: endDate || undefined,
+              maxOccurrences: maxOccurrences || undefined,
+            };
+          })()
         : undefined;
 
       this.accountService
