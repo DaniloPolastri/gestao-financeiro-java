@@ -87,6 +87,20 @@
             <version>${springdoc.version}</version>
         </dependency>
 
+        <!-- OFX parsing -->
+        <dependency>
+            <groupId>com.webcohesion.ofx4j</groupId>
+            <artifactId>ofx4j</artifactId>
+            <version>1.39</version>
+        </dependency>
+
+        <!-- CSV parsing -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.12.0</version>
+        </dependency>
+
         <!-- Dev Tools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
