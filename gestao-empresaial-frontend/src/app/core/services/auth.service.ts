@@ -32,6 +32,14 @@ export class AuthService {
     return this._accessToken();
   }
 
+  get userName(): string | null {
+    return this._user()?.name ?? null;
+  }
+
+  get userEmail(): string | null {
+    return this._user()?.email ?? null;
+  }
+
   login(email: string, password: string) {
     return this.http
       .post<AuthResponse>(`${this.API_URL}/login`, { email, password })
