@@ -50,7 +50,7 @@ class SupplierServiceImplTest {
         supplier.setId(UUID.randomUUID());
         var response = new SupplierResponseDTO(supplier.getId(), "Fornecedor A", "11222333000181", "a@test.com", "11999990000", true, null, null);
 
-        when(supplierRepository.existsByCompanyIdAndNameIgnoreCase(companyId, "Fornecedor A")).thenReturn(false);
+        when(supplierRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Fornecedor A")).thenReturn(false);
         when(supplierRepository.save(any(Supplier.class))).thenReturn(supplier);
         when(supplierMapper.toResponse(any(Supplier.class))).thenReturn(response);
 
@@ -62,12 +62,26 @@ class SupplierServiceImplTest {
     }
 
     @Test
-    void createSupplier_duplicateName_throws() {
+    void createSupplier_duplicateActiveName_throws() {
         var request = new CreateSupplierRequestDTO("Fornecedor A", null, null, null);
-        when(supplierRepository.existsByCompanyIdAndNameIgnoreCase(companyId, "Fornecedor A")).thenReturn(true);
+        when(supplierRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Fornecedor A")).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class, () -> supplierService.create(companyId, request));
         verify(supplierRepository, never()).save(any());
+    }
+
+    @Test
+    void createSupplier_sameNameAsSoftDeleted_succeeds() {
+        var request = new CreateSupplierRequestDTO("Deletado", null, null, null);
+        var supplier = new Supplier(companyId, "Deletado");
+        supplier.setId(UUID.randomUUID());
+        var response = new SupplierResponseDTO(supplier.getId(), "Deletado", null, null, null, true, null, null);
+
+        when(supplierRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Deletado")).thenReturn(false);
+        when(supplierRepository.save(any(Supplier.class))).thenReturn(supplier);
+        when(supplierMapper.toResponse(any(Supplier.class))).thenReturn(response);
+
+        assertDoesNotThrow(() -> supplierService.create(companyId, request));
     }
 
     // --- LIST ---
@@ -121,7 +135,7 @@ class SupplierServiceImplTest {
         var response = new SupplierResponseDTO(supplierId, "New Name", null, null, null, true, null, null);
 
         when(supplierRepository.findByIdAndCompanyId(supplierId, companyId)).thenReturn(Optional.of(supplier));
-        when(supplierRepository.existsByCompanyIdAndNameIgnoreCase(companyId, "New Name")).thenReturn(false);
+        when(supplierRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "New Name")).thenReturn(false);
         when(supplierRepository.save(supplier)).thenReturn(supplier);
         when(supplierMapper.toResponse(supplier)).thenReturn(response);
 

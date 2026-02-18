@@ -101,7 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
         groupRepository.findByIdAndCompanyId(request.groupId(), companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Grupo de categoria", request.groupId()));
 
-        if (categoryRepository.existsByGroupIdAndNameIgnoreCase(request.groupId(), request.name())) {
+        if (categoryRepository.existsByGroupIdAndNameIgnoreCaseAndActiveTrue(request.groupId(), request.name())) {
             throw new DuplicateResourceException("Ja existe uma categoria com este nome neste grupo");
         }
 
@@ -116,7 +116,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria", categoryId));
 
         if (!category.getName().equalsIgnoreCase(request.name())
-                && categoryRepository.existsByGroupIdAndNameIgnoreCase(category.getGroupId(), request.name())) {
+                && categoryRepository.existsByGroupIdAndNameIgnoreCaseAndActiveTrue(category.getGroupId(), request.name())) {
             throw new DuplicateResourceException("Ja existe uma categoria com este nome neste grupo");
         }
 

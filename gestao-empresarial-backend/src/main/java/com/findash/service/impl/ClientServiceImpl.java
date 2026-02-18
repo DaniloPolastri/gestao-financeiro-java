@@ -29,13 +29,13 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponseDTO create(UUID companyId, CreateClientRequestDTO request) {
-        if (clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, request.name())) {
+        if (clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, request.name())) {
             throw new DuplicateResourceException("Ja existe um cliente com este nome");
         }
 
         String normalizedDoc = request.document() != null ? CnpjValidator.normalize(request.document()) : null;
         if (normalizedDoc != null && !normalizedDoc.isBlank()
-                && clientRepository.existsByCompanyIdAndDocument(companyId, normalizedDoc)) {
+                && clientRepository.existsByCompanyIdAndDocumentAndActiveTrue(companyId, normalizedDoc)) {
             throw new DuplicateResourceException("Ja existe um cliente com este documento");
         }
 
@@ -69,7 +69,7 @@ public class ClientServiceImpl implements ClientService {
         Client client = findOrThrow(companyId, clientId);
 
         if (!client.getName().equalsIgnoreCase(request.name())
-                && clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, request.name())) {
+                && clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, request.name())) {
             throw new DuplicateResourceException("Ja existe um cliente com este nome");
         }
 

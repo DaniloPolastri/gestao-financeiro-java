@@ -44,7 +44,7 @@ class ClientServiceImplTest {
         client.setId(UUID.randomUUID());
         var response = new ClientResponseDTO(client.getId(), "Cliente A", "11222333000181", "a@test.com", "11999990000", true, null, null);
 
-        when(clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, "Cliente A")).thenReturn(false);
+        when(clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Cliente A")).thenReturn(false);
         when(clientRepository.save(any(Client.class))).thenReturn(client);
         when(clientMapper.toResponse(any(Client.class))).thenReturn(response);
 
@@ -54,10 +54,24 @@ class ClientServiceImplTest {
     }
 
     @Test
-    void createClient_duplicateName_throws() {
+    void createClient_duplicateActiveName_throws() {
         var request = new CreateClientRequestDTO("Cliente A", null, null, null);
-        when(clientRepository.existsByCompanyIdAndNameIgnoreCase(companyId, "Cliente A")).thenReturn(true);
+        when(clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Cliente A")).thenReturn(true);
         assertThrows(DuplicateResourceException.class, () -> clientService.create(companyId, request));
+    }
+
+    @Test
+    void createClient_sameNameAsSoftDeleted_succeeds() {
+        var request = new CreateClientRequestDTO("Deletado", null, null, null);
+        var client = new Client(companyId, "Deletado");
+        client.setId(UUID.randomUUID());
+        var response = new ClientResponseDTO(client.getId(), "Deletado", null, null, null, true, null, null);
+
+        when(clientRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, "Deletado")).thenReturn(false);
+        when(clientRepository.save(any(Client.class))).thenReturn(client);
+        when(clientMapper.toResponse(any(Client.class))).thenReturn(response);
+
+        assertDoesNotThrow(() -> clientService.create(companyId, request));
     }
 
     @Test

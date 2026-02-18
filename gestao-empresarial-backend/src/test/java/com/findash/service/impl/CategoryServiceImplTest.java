@@ -118,7 +118,7 @@ class CategoryServiceImplTest {
         var request = new CreateCategoryRequestDTO(groupId, "Nova Categoria");
 
         when(groupRepository.findByIdAndCompanyId(groupId, companyId)).thenReturn(Optional.of(group));
-        when(categoryRepository.existsByGroupIdAndNameIgnoreCase(groupId, "Nova Categoria")).thenReturn(false);
+        when(categoryRepository.existsByGroupIdAndNameIgnoreCaseAndActiveTrue(groupId, "Nova Categoria")).thenReturn(false);
         when(categoryRepository.save(any(Category.class))).thenAnswer(inv -> {
             Category c = inv.getArgument(0);
             c.setId(UUID.randomUUID());
@@ -133,16 +133,37 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    void createCategory_duplicateInGroup_throws() {
+    void createCategory_duplicateActiveName_throws() {
         UUID groupId = UUID.randomUUID();
         var group = new CategoryGroup(companyId, "G", CategoryGroupType.EXPENSE, 0);
         group.setId(groupId);
         var request = new CreateCategoryRequestDTO(groupId, "Existente");
 
         when(groupRepository.findByIdAndCompanyId(groupId, companyId)).thenReturn(Optional.of(group));
-        when(categoryRepository.existsByGroupIdAndNameIgnoreCase(groupId, "Existente")).thenReturn(true);
+        when(categoryRepository.existsByGroupIdAndNameIgnoreCaseAndActiveTrue(groupId, "Existente")).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class, () -> categoryService.createCategory(companyId, request));
+    }
+
+    @Test
+    void createCategory_sameNameAsSoftDeleted_succeeds() {
+        UUID groupId = UUID.randomUUID();
+        var group = new CategoryGroup(companyId, "G", CategoryGroupType.EXPENSE, 0);
+        group.setId(groupId);
+        var request = new CreateCategoryRequestDTO(groupId, "Deletada");
+
+        when(groupRepository.findByIdAndCompanyId(groupId, companyId)).thenReturn(Optional.of(group));
+        // soft-deleted one exists but active check returns false → should NOT throw
+        when(categoryRepository.existsByGroupIdAndNameIgnoreCaseAndActiveTrue(groupId, "Deletada")).thenReturn(false);
+        when(categoryRepository.save(any(Category.class))).thenAnswer(inv -> {
+            Category c = inv.getArgument(0);
+            c.setId(UUID.randomUUID());
+            return c;
+        });
+        when(categoryMapper.toCategoryResponse(any())).thenReturn(
+            new CategoryResponseDTO(UUID.randomUUID(), groupId, "Deletada", true));
+
+        assertDoesNotThrow(() -> categoryService.createCategory(companyId, request));
     }
 
     // --- SEED ---

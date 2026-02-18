@@ -29,13 +29,13 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public SupplierResponseDTO create(UUID companyId, CreateSupplierRequestDTO request) {
-        if (supplierRepository.existsByCompanyIdAndNameIgnoreCase(companyId, request.name())) {
+        if (supplierRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, request.name())) {
             throw new DuplicateResourceException("Ja existe um fornecedor com este nome");
         }
 
         String normalizedDoc = request.document() != null ? CnpjValidator.normalize(request.document()) : null;
         if (normalizedDoc != null && !normalizedDoc.isBlank()
-                && supplierRepository.existsByCompanyIdAndDocument(companyId, normalizedDoc)) {
+                && supplierRepository.existsByCompanyIdAndDocumentAndActiveTrue(companyId, normalizedDoc)) {
             throw new DuplicateResourceException("Ja existe um fornecedor com este documento");
         }
 
@@ -69,7 +69,7 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier supplier = findOrThrow(companyId, supplierId);
 
         if (!supplier.getName().equalsIgnoreCase(request.name())
-                && supplierRepository.existsByCompanyIdAndNameIgnoreCase(companyId, request.name())) {
+                && supplierRepository.existsByCompanyIdAndNameIgnoreCaseAndActiveTrue(companyId, request.name())) {
             throw new DuplicateResourceException("Ja existe um fornecedor com este nome");
         }
 
