@@ -20,6 +20,7 @@ export class UserManagementComponent implements OnInit {
   protected readonly inviteLoading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly inviteSuccess = signal(false);
+  protected readonly showInviteForm = signal(false);
 
   protected readonly inviteForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -28,6 +29,27 @@ export class UserManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadMembers();
+  }
+
+  protected toggleInviteForm() {
+    this.showInviteForm.update((v) => !v);
+  }
+
+  protected getInitials(name: string): string {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
+  protected getRoleLabel(role: string | null): string {
+    switch (role) {
+      case 'ADMIN': return 'Administrador';
+      case 'EDITOR': return 'Editor';
+      case 'VIEWER': return 'Visualizador';
+      default: return 'Convidado';
+    }
   }
 
   protected inviteMember() {
@@ -44,6 +66,7 @@ export class UserManagementComponent implements OnInit {
       next: () => {
         this.inviteLoading.set(false);
         this.inviteSuccess.set(true);
+        this.showInviteForm.set(false);
         this.inviteForm.reset({ email: '', role: 'EDITOR' });
         this.loadMembers();
       },
