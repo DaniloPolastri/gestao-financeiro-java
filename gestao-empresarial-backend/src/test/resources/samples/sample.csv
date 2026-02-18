@@ -1,0 +1,3 @@
+data,descricao,valor,tipo
+2026-01-15,Pagamento Fornecedor XPTO,1500.00,DEBIT
+2026-01-16,Recebimento Cliente ABC,3000.00,CREDIT
