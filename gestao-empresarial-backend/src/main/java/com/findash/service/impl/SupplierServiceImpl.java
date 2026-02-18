@@ -4,9 +4,11 @@ import com.findash.dto.supplier.CreateSupplierRequestDTO;
 import com.findash.dto.supplier.SupplierResponseDTO;
 import com.findash.dto.supplier.UpdateSupplierRequestDTO;
 import com.findash.entity.Supplier;
+import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.SupplierMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.SupplierRepository;
 import com.findash.service.SupplierService;
 import com.findash.util.CnpjValidator;
@@ -21,10 +23,13 @@ public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
+    private final AccountRepository accountRepository;
 
-    public SupplierServiceImpl(SupplierRepository supplierRepository, SupplierMapper supplierMapper) {
+    public SupplierServiceImpl(SupplierRepository supplierRepository, SupplierMapper supplierMapper,
+                               AccountRepository accountRepository) {
         this.supplierRepository = supplierRepository;
         this.supplierMapper = supplierMapper;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -86,8 +91,12 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public void delete(UUID companyId, UUID supplierId) {
         Supplier supplier = findOrThrow(companyId, supplierId);
-        supplier.setActive(false);
-        supplierRepository.save(supplier);
+
+        if (accountRepository.existsBySupplierId(supplierId)) {
+            throw new BusinessRuleException("Nao e possivel excluir este fornecedor pois existem lancamentos vinculados a ele.");
+        }
+
+        supplierRepository.delete(supplier);
     }
 
     private Supplier findOrThrow(UUID companyId, UUID supplierId) {

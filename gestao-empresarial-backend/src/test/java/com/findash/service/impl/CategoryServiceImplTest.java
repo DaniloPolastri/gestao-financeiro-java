@@ -166,6 +166,37 @@ class CategoryServiceImplTest {
         assertDoesNotThrow(() -> categoryService.createCategory(companyId, request));
     }
 
+    // --- DELETE CATEGORY ---
+
+    @Test
+    void deleteCategory_noLinkedAccounts_hardDeletes() {
+        UUID groupId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        var category = new Category(groupId, companyId, "Vendas");
+        category.setId(categoryId);
+
+        when(categoryRepository.findByIdAndCompanyId(categoryId, companyId)).thenReturn(Optional.of(category));
+        when(accountRepository.existsByCategoryId(categoryId)).thenReturn(false);
+
+        categoryService.deleteCategory(companyId, categoryId);
+
+        verify(categoryRepository).delete(category);
+    }
+
+    @Test
+    void deleteCategory_withLinkedAccounts_throws() {
+        UUID groupId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        var category = new Category(groupId, companyId, "Vendas");
+        category.setId(categoryId);
+
+        when(categoryRepository.findByIdAndCompanyId(categoryId, companyId)).thenReturn(Optional.of(category));
+        when(accountRepository.existsByCategoryId(categoryId)).thenReturn(true);
+
+        assertThrows(BusinessRuleException.class, () -> categoryService.deleteCategory(companyId, categoryId));
+        verify(categoryRepository, never()).delete(any());
+    }
+
     // --- SEED ---
 
     @Test

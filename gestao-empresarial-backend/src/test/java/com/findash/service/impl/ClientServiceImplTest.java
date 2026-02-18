@@ -4,9 +4,11 @@ import com.findash.dto.client.CreateClientRequestDTO;
 import com.findash.dto.client.ClientResponseDTO;
 import com.findash.dto.client.UpdateClientRequestDTO;
 import com.findash.entity.Client;
+import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.ClientMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.ClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,13 +29,14 @@ class ClientServiceImplTest {
 
     @Mock private ClientRepository clientRepository;
     @Mock private ClientMapper clientMapper;
+    @Mock private AccountRepository accountRepository;
 
     private ClientServiceImpl clientService;
     private UUID companyId;
 
     @BeforeEach
     void setUp() {
-        clientService = new ClientServiceImpl(clientRepository, clientMapper);
+        clientService = new ClientServiceImpl(clientRepository, clientMapper, accountRepository);
         companyId = UUID.randomUUID();
     }
 
@@ -92,14 +95,26 @@ class ClientServiceImplTest {
     }
 
     @Test
-    void deleteClient_setsInactive() {
+    void deleteClient_noLinkedAccounts_hardDeletes() {
         UUID clientId = UUID.randomUUID();
         var client = new Client(companyId, "A");
         client.setId(clientId);
         when(clientRepository.findByIdAndCompanyId(clientId, companyId)).thenReturn(Optional.of(client));
+        when(accountRepository.existsByClientId(clientId)).thenReturn(false);
 
         clientService.delete(companyId, clientId);
-        assertFalse(client.isActive());
-        verify(clientRepository).save(client);
+        verify(clientRepository).delete(client);
+    }
+
+    @Test
+    void deleteClient_withLinkedAccounts_throws() {
+        UUID clientId = UUID.randomUUID();
+        var client = new Client(companyId, "A");
+        client.setId(clientId);
+        when(clientRepository.findByIdAndCompanyId(clientId, companyId)).thenReturn(Optional.of(client));
+        when(accountRepository.existsByClientId(clientId)).thenReturn(true);
+
+        assertThrows(BusinessRuleException.class, () -> clientService.delete(companyId, clientId));
+        verify(clientRepository, never()).delete(any());
     }
 }

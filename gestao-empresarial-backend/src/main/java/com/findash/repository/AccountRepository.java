@@ -15,6 +15,12 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpec
 
     Optional<Account> findByIdAndCompanyId(UUID id, UUID companyId);
 
+    boolean existsByCategoryId(UUID categoryId);
+
+    boolean existsBySupplierId(UUID supplierId);
+
+    boolean existsByClientId(UUID clientId);
+
     @Query("SELECT COUNT(a) > 0 FROM Account a WHERE a.categoryId IN " +
            "(SELECT c.id FROM Category c WHERE c.groupId = :groupId)")
     boolean existsByCategoryGroupId(@Param("groupId") UUID groupId);

@@ -129,8 +129,12 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(UUID companyId, UUID categoryId) {
         Category category = categoryRepository.findByIdAndCompanyId(categoryId, companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria", categoryId));
-        category.setActive(false);
-        categoryRepository.save(category);
+
+        if (accountRepository.existsByCategoryId(categoryId)) {
+            throw new BusinessRuleException("Nao e possivel excluir esta categoria pois existem lancamentos vinculados a ela.");
+        }
+
+        categoryRepository.delete(category);
     }
 
     @Override

@@ -4,9 +4,11 @@ import com.findash.dto.supplier.CreateSupplierRequestDTO;
 import com.findash.dto.supplier.SupplierResponseDTO;
 import com.findash.dto.supplier.UpdateSupplierRequestDTO;
 import com.findash.entity.Supplier;
+import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.SupplierMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.SupplierRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,13 +33,16 @@ class SupplierServiceImplTest {
     @Mock
     private SupplierMapper supplierMapper;
 
+    @Mock
+    private AccountRepository accountRepository;
+
     private SupplierServiceImpl supplierService;
 
     private UUID companyId;
 
     @BeforeEach
     void setUp() {
-        supplierService = new SupplierServiceImpl(supplierRepository, supplierMapper);
+        supplierService = new SupplierServiceImpl(supplierRepository, supplierMapper, accountRepository);
         companyId = UUID.randomUUID();
     }
 
@@ -144,20 +149,32 @@ class SupplierServiceImplTest {
         assertEquals("New Name", result.name());
     }
 
-    // --- DELETE (soft) ---
+    // --- DELETE ---
 
     @Test
-    void deleteSupplier_setsInactive() {
+    void deleteSupplier_noLinkedAccounts_hardDeletes() {
         UUID supplierId = UUID.randomUUID();
         var supplier = new Supplier(companyId, "A");
         supplier.setId(supplierId);
-        supplier.setActive(true);
 
         when(supplierRepository.findByIdAndCompanyId(supplierId, companyId)).thenReturn(Optional.of(supplier));
+        when(accountRepository.existsBySupplierId(supplierId)).thenReturn(false);
 
         supplierService.delete(companyId, supplierId);
 
-        assertFalse(supplier.isActive());
-        verify(supplierRepository).save(supplier);
+        verify(supplierRepository).delete(supplier);
+    }
+
+    @Test
+    void deleteSupplier_withLinkedAccounts_throws() {
+        UUID supplierId = UUID.randomUUID();
+        var supplier = new Supplier(companyId, "A");
+        supplier.setId(supplierId);
+
+        when(supplierRepository.findByIdAndCompanyId(supplierId, companyId)).thenReturn(Optional.of(supplier));
+        when(accountRepository.existsBySupplierId(supplierId)).thenReturn(true);
+
+        assertThrows(BusinessRuleException.class, () -> supplierService.delete(companyId, supplierId));
+        verify(supplierRepository, never()).delete(any());
     }
 }
