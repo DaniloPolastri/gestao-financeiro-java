@@ -40,6 +40,7 @@ export class AccountListComponent implements OnInit {
     if (this.editingId()) return this.isPayable() ? 'Editar Conta a Pagar' : 'Editar Conta a Receber';
     return this.isPayable() ? 'Nova Conta a Pagar' : 'Nova Conta a Receber';
   });
+  protected readonly pages = computed(() => Array.from({ length: this.totalPages() }));
 
   protected readonly tabs = [
     { key: 'todos', label: 'Todos', statuses: null },

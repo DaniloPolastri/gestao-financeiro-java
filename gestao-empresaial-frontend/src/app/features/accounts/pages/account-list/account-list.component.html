@@ -110,7 +110,7 @@
     <div class="flex items-center justify-between mt-4">
       <p class="text-xs text-gray-500">{{ totalElements() }} resultado(s)</p>
       <div class="flex gap-1">
-        @for (p of [].constructor(totalPages()); track $index) {
+        @for (p of pages(); track $index) {
           <button (click)="goToPage($index)"
             class="w-8 h-8 text-xs rounded-md"
             [class.bg-blue-600]="currentPage() === $index"
