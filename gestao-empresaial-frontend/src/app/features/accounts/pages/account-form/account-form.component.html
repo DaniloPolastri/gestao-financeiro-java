@@ -1,0 +1,167 @@
+<!-- Page Header -->
+<div class="mb-6">
+  <a [routerLink]="basePath()" class="text-sm text-blue-600 hover:text-blue-700 mb-2 inline-block">
+    <i class="pi pi-arrow-left text-xs mr-1"></i> Voltar
+  </a>
+  <h1 class="text-2xl font-bold text-gray-900">{{ pageTitle() }}</h1>
+</div>
+
+@if (error()) {
+  <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+    {{ error() }}
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="save()" class="border border-gray-200 rounded-lg p-6">
+  <div class="grid grid-cols-2 gap-6 mb-6">
+    <div class="col-span-2">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Descricao <span class="text-red-500">*</span></label>
+      <input
+        formControlName="description"
+        type="text"
+        class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Ex: Aluguel Escritorio"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Valor (R$) <span class="text-red-500">*</span></label>
+      <input
+        formControlName="amount"
+        type="number"
+        step="0.01"
+        min="0.01"
+        class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Vencimento <span class="text-red-500">*</span></label>
+      <input
+        formControlName="dueDate"
+        type="date"
+        class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Categoria <span class="text-red-500">*</span></label>
+      <select
+        formControlName="categoryId"
+        class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Selecione...</option>
+        @for (group of groups(); track group.id) {
+          <optgroup [label]="group.name">
+            @for (cat of group.categories; track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </optgroup>
+        }
+      </select>
+    </div>
+
+    @if (isPayable()) {
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Fornecedor <span class="text-red-500">*</span></label>
+        <select
+          formControlName="supplierId"
+          class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Selecione...</option>
+          @for (s of suppliers(); track s.id) {
+            <option [value]="s.id">{{ s.name }}</option>
+          }
+        </select>
+      </div>
+    } @else {
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente <span class="text-red-500">*</span></label>
+        <select
+          formControlName="clientId"
+          class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Selecione...</option>
+          @for (c of clients(); track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <div class="col-span-2">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Observacoes</label>
+      <textarea
+        formControlName="notes"
+        rows="3"
+        class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Informacoes adicionais..."
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Recurrence (only for create) -->
+  @if (!isEdit()) {
+    <div class="border-t border-gray-200 pt-6 mb-6">
+      <button
+        type="button"
+        (click)="toggleRecurrence()"
+        class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+      >
+        {{ showRecurrence() ? '- Remover recorrencia' : '+ Adicionar recorrencia' }}
+      </button>
+
+      @if (showRecurrence()) {
+        <div class="mt-4 grid grid-cols-3 gap-4" [formGroup]="recurrenceForm">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Frequencia</label>
+            <select
+              formControlName="frequency"
+              class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="MONTHLY">Mensal</option>
+              <option value="WEEKLY">Semanal</option>
+              <option value="BIWEEKLY">Quinzenal</option>
+              <option value="YEARLY">Anual</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Data final</label>
+            <input
+              formControlName="endDate"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Num. parcelas</label>
+            <input
+              formControlName="maxOccurrences"
+              type="number"
+              min="1"
+              max="60"
+              class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Actions -->
+  <div class="flex items-center gap-3">
+    <button
+      type="submit"
+      [disabled]="form.invalid || loading()"
+      class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
+    >
+      {{ loading() ? 'Salvando...' : 'Salvar' }}
+    </button>
+    <a
+      [routerLink]="basePath()"
+      class="px-6 py-2 border border-gray-200 text-sm text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors duration-150"
+    >
+      Cancelar
+    </a>
+  </div>
+</form>
