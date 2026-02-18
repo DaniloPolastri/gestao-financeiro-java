@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -142,6 +143,29 @@ class AccountServiceImplTest {
         // March, April, May, June = 4 entries
         verify(accountRepository, times(4)).save(any(Account.class));
         verify(recurrenceRepository).save(any(Recurrence.class));
+    }
+
+    @Test
+    void createPayable_withPastDueDate_setsOverdueStatus() {
+        UUID categoryId = UUID.randomUUID();
+        UUID supplierId = UUID.randomUUID();
+        var request = new CreateAccountRequestDTO(
+            "PAYABLE", "Aluguel Atrasado", new BigDecimal("2500.00"),
+            LocalDate.now().minusDays(3), categoryId, supplierId, null, null, null
+        );
+
+        when(categoryRepository.findByIdAndCompanyId(categoryId, companyId))
+            .thenReturn(Optional.of(new Category(UUID.randomUUID(), companyId, "Operacional")));
+        when(supplierRepository.findByIdAndCompanyId(supplierId, companyId))
+            .thenReturn(Optional.of(new Supplier(companyId, "Imobiliaria")));
+
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(accountMapper.toResponse(any(), any(), any(), any()))
+            .thenReturn(createMockResponse("PAYABLE", "OVERDUE"));
+
+        accountService.create(companyId, request);
+
+        verify(accountRepository).save(argThat(account -> account.getStatus() == AccountStatus.OVERDUE));
     }
 
     // --- PAY ---

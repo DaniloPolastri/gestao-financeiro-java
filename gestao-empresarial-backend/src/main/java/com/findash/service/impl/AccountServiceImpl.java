@@ -109,6 +109,9 @@ public class AccountServiceImpl implements AccountService {
         account.setClientId(request.clientId());
         account.setRecurrenceId(recurrenceId);
         account.setNotes(request.notes());
+        if (request.dueDate().isBefore(LocalDate.now())) {
+            account.setStatus(AccountStatus.OVERDUE);
+        }
         return account;
     }
 
