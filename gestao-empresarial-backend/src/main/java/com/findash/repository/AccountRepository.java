@@ -21,6 +21,10 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpec
 
     boolean existsByClientId(UUID clientId);
 
+    boolean existsByCompanyIdAndDueDateAndAmountAndDescription(
+        UUID companyId, java.time.LocalDate dueDate,
+        java.math.BigDecimal amount, String description);
+
     @Query("SELECT COUNT(a) > 0 FROM Account a WHERE a.categoryId IN " +
            "(SELECT c.id FROM Category c WHERE c.groupId = :groupId)")
     boolean existsByCategoryGroupId(@Param("groupId") UUID groupId);
