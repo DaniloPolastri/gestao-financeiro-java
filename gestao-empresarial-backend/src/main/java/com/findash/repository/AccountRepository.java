@@ -15,6 +15,10 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpec
 
     Optional<Account> findByIdAndCompanyId(UUID id, UUID companyId);
 
+    @Query("SELECT COUNT(a) > 0 FROM Account a WHERE a.categoryId IN " +
+           "(SELECT c.id FROM Category c WHERE c.groupId = :groupId)")
+    boolean existsByCategoryGroupId(@Param("groupId") UUID groupId);
+
     @Modifying
     @Query("UPDATE Account a SET a.status = :newStatus, a.updatedAt = CURRENT_TIMESTAMP " +
            "WHERE a.status = :currentStatus AND a.dueDate < :today AND a.active = true")

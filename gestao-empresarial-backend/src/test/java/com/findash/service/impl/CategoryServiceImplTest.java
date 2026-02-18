@@ -8,6 +8,7 @@ import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.CategoryMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.CategoryGroupRepository;
 import com.findash.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,7 @@ class CategoryServiceImplTest {
 
     @Mock private CategoryGroupRepository groupRepository;
     @Mock private CategoryRepository categoryRepository;
+    @Mock private AccountRepository accountRepository;
     @Mock private CategoryMapper categoryMapper;
 
     private CategoryServiceImpl categoryService;
@@ -36,7 +38,7 @@ class CategoryServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        categoryService = new CategoryServiceImpl(groupRepository, categoryRepository, categoryMapper);
+        categoryService = new CategoryServiceImpl(groupRepository, categoryRepository, accountRepository, categoryMapper);
         companyId = UUID.randomUUID();
     }
 
@@ -82,13 +84,26 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    void deleteGroup_withCategories_throws() {
+    void deleteGroup_withActiveCategories_throws() {
         UUID groupId = UUID.randomUUID();
         var group = new CategoryGroup(companyId, "G", CategoryGroupType.EXPENSE, 0);
         group.setId(groupId);
 
         when(groupRepository.findByIdAndCompanyId(groupId, companyId)).thenReturn(Optional.of(group));
         when(categoryRepository.existsByGroupIdAndActiveTrue(groupId)).thenReturn(true);
+
+        assertThrows(BusinessRuleException.class, () -> categoryService.deleteGroup(companyId, groupId));
+    }
+
+    @Test
+    void deleteGroup_withNoActiveCategories_butAccountsReference_throws() {
+        UUID groupId = UUID.randomUUID();
+        var group = new CategoryGroup(companyId, "G", CategoryGroupType.EXPENSE, 0);
+        group.setId(groupId);
+
+        when(groupRepository.findByIdAndCompanyId(groupId, companyId)).thenReturn(Optional.of(group));
+        when(categoryRepository.existsByGroupIdAndActiveTrue(groupId)).thenReturn(false);
+        when(accountRepository.existsByCategoryGroupId(groupId)).thenReturn(true);
 
         assertThrows(BusinessRuleException.class, () -> categoryService.deleteGroup(companyId, groupId));
     }

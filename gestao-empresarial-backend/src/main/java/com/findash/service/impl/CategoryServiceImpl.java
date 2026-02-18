@@ -8,6 +8,7 @@ import com.findash.exception.BusinessRuleException;
 import com.findash.exception.DuplicateResourceException;
 import com.findash.exception.ResourceNotFoundException;
 import com.findash.mapper.CategoryMapper;
+import com.findash.repository.AccountRepository;
 import com.findash.repository.CategoryGroupRepository;
 import com.findash.repository.CategoryRepository;
 import com.findash.service.CategoryService;
@@ -23,13 +24,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryGroupRepository groupRepository;
     private final CategoryRepository categoryRepository;
+    private final AccountRepository accountRepository;
     private final CategoryMapper categoryMapper;
 
     public CategoryServiceImpl(CategoryGroupRepository groupRepository,
                                CategoryRepository categoryRepository,
+                               AccountRepository accountRepository,
                                CategoryMapper categoryMapper) {
         this.groupRepository = groupRepository;
         this.categoryRepository = categoryRepository;
+        this.accountRepository = accountRepository;
         this.categoryMapper = categoryMapper;
     }
 
@@ -83,6 +87,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         if (categoryRepository.existsByGroupIdAndActiveTrue(groupId)) {
             throw new BusinessRuleException("Nao e possivel excluir grupo com categorias vinculadas. Remova ou reclassifique as categorias primeiro.");
+        }
+
+        if (accountRepository.existsByCategoryGroupId(groupId)) {
+            throw new BusinessRuleException("Nao e possivel excluir este grupo pois existem contas financeiras vinculadas a suas categorias.");
         }
 
         groupRepository.delete(group);
