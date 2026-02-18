@@ -1,11 +1,13 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit, computed } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AccountService } from '../../services/account.service';
 import { AccountType, AccountStatus } from '../../models/account.model';
+import { DrawerComponent } from '../../../../shared/ui/drawer/drawer.component';
+import { AccountDrawerFormComponent } from '../../components/account-drawer-form/account-drawer-form.component';
 
 @Component({
   selector: 'app-account-list',
-  imports: [RouterLink],
+  imports: [DrawerComponent, AccountDrawerFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './account-list.component.html',
 })
@@ -20,6 +22,8 @@ export class AccountListComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly activeTab = signal<string>('todos');
+  protected readonly drawerOpen = signal(false);
+  protected readonly editingId = signal<string | null>(null);
 
   protected readonly type: AccountType = this.route.snapshot.data['type'] ?? 'PAYABLE';
 
@@ -32,7 +36,10 @@ export class AccountListComponent implements OnInit {
   );
   protected readonly entityLabel = computed(() => this.isPayable() ? 'Fornecedor' : 'Cliente');
   protected readonly newButtonLabel = computed(() => this.isPayable() ? 'Nova Conta' : 'Novo Recebimento');
-  protected readonly basePath = computed(() => this.isPayable() ? '/contas-a-pagar' : '/contas-a-receber');
+  protected readonly drawerTitle = computed(() => {
+    if (this.editingId()) return this.isPayable() ? 'Editar Conta a Pagar' : 'Editar Conta a Receber';
+    return this.isPayable() ? 'Nova Conta a Pagar' : 'Nova Conta a Receber';
+  });
 
   protected readonly tabs = [
     { key: 'todos', label: 'Todos', statuses: null },
@@ -42,6 +49,26 @@ export class AccountListComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.loadData();
+  }
+
+  protected openNew() {
+    this.editingId.set(null);
+    this.drawerOpen.set(true);
+  }
+
+  protected openEdit(id: string) {
+    this.editingId.set(id);
+    this.drawerOpen.set(true);
+  }
+
+  protected closeDrawer() {
+    this.drawerOpen.set(false);
+    this.editingId.set(null);
+  }
+
+  protected onSaved() {
+    this.closeDrawer();
     this.loadData();
   }
 
@@ -64,11 +91,7 @@ export class AccountListComponent implements OnInit {
 
   protected getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
-      PENDING: 'Pendente',
-      PAID: 'Pago',
-      RECEIVED: 'Recebido',
-      OVERDUE: 'Atrasado',
-      PARTIAL: 'Parcial',
+      PENDING: 'Pendente', PAID: 'Pago', RECEIVED: 'Recebido', OVERDUE: 'Atrasado', PARTIAL: 'Parcial',
     };
     return labels[status] || status;
   }
@@ -87,13 +110,9 @@ export class AccountListComponent implements OnInit {
     this.loading.set(true);
     const activeTabObj = this.tabs.find((t) => t.key === this.activeTab());
     const filters = activeTabObj?.statuses ? { status: activeTabObj.statuses } : undefined;
-
     this.accountService.loadAccounts(this.type, filters, page).subscribe({
       next: () => this.loading.set(false),
-      error: (err) => {
-        this.loading.set(false);
-        this.error.set(err.error?.message || 'Erro ao carregar contas');
-      },
+      error: (err) => { this.loading.set(false); this.error.set(err.error?.message || 'Erro ao carregar contas'); },
     });
   }
 }
