@@ -1,2 +1,85 @@
-<h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-<p class="mt-2 text-sm text-gray-500">Bem-vindo ao FinDash. Seus dados aparecerão aqui.</p>
+<!-- Page Header -->
+<div class="mb-8">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Visao Geral</h1>
+      <p class="mt-1 text-sm text-gray-500">Resumo financeiro da empresa em tempo real.</p>
+    </div>
+    <select class="px-3 py-2 border border-gray-200 rounded-md text-sm text-gray-700 bg-white">
+      <option>Este Mes</option>
+      <option>Ultimo Mes</option>
+      <option>Ultimos 3 Meses</option>
+    </select>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-4 gap-4 mb-8">
+  @for (kpi of kpis; track kpi.label) {
+    <div class="border border-gray-200 rounded-lg p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+          <i [class]="kpi.icon + ' text-gray-500'"></i>
+        </div>
+        @if (kpi.positive !== null) {
+          <span
+            class="text-xs font-medium"
+            [class.text-emerald-600]="kpi.positive"
+            [class.text-red-600]="!kpi.positive"
+          >
+            {{ kpi.change }}
+          </span>
+        } @else {
+          <span class="text-xs text-gray-400">{{ kpi.change }}</span>
+        }
+      </div>
+      <p class="text-xs text-gray-500 mb-1">{{ kpi.label }}</p>
+      <p class="text-xl font-bold text-gray-900 font-mono">{{ kpi.value }}</p>
+    </div>
+  }
+</div>
+
+<!-- Content Grid -->
+<div class="grid grid-cols-3 gap-6">
+  <!-- Cash Flow Chart -->
+  <div class="col-span-2 border border-gray-200 rounded-lg p-6">
+    <h2 class="text-base font-semibold text-gray-900 mb-6">Fluxo de Caixa</h2>
+    <div class="flex items-end gap-4 h-48">
+      @for (month of months; track month) {
+        <div class="flex-1 flex flex-col items-center gap-2">
+          <div class="w-full bg-blue-600/80 rounded-t-sm" [style.height.px]="60 + ($index * 20)"></div>
+          <span class="text-xs text-gray-500">{{ month }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="border border-gray-200 rounded-lg p-6">
+    <h2 class="text-base font-semibold text-gray-900 mb-6">Acoes Rapidas</h2>
+    <div class="space-y-3">
+      <button
+        class="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-150 text-left"
+      >
+        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+          <i class="pi pi-plus text-emerald-600"></i>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-900">Nova Receita</p>
+          <p class="text-xs text-gray-500">Registrar entrada manual</p>
+        </div>
+      </button>
+      <button
+        class="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-150 text-left"
+      >
+        <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+          <i class="pi pi-plus text-red-600"></i>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-900">Nova Despesa</p>
+          <p class="text-xs text-gray-500">Registrar saida manual</p>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
