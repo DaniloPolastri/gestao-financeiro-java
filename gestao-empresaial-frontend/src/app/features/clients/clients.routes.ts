@@ -6,14 +6,4 @@ export const clientsRoutes: Routes = [
     loadComponent: () =>
       import('./pages/client-list/client-list.component').then((m) => m.ClientListComponent),
   },
-  {
-    path: 'novo',
-    loadComponent: () =>
-      import('./pages/client-form/client-form.component').then((m) => m.ClientFormComponent),
-  },
-  {
-    path: ':id/editar',
-    loadComponent: () =>
-      import('./pages/client-form/client-form.component').then((m) => m.ClientFormComponent),
-  },
 ];
