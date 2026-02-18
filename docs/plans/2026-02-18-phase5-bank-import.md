@@ -14,19 +14,19 @@
 
 ## Checklist de Progresso
 
-- [ ] Task 1: Branch + dependências Maven
-- [ ] Task 2: Flyway migration V6
-- [ ] Task 3: Entidades JPA + enums
-- [ ] Task 4: Repositories
-- [ ] Task 5: DTOs
-- [ ] Task 6: Parser OFX
-- [ ] Task 7: Parser CSV (auto-detect + template fallback)
-- [ ] Task 8: BankImportService — upload e parsing
-- [ ] Task 9: BankImportService — edição de itens (individual + batch)
-- [ ] Task 10: BankImportService — confirmar importação
-- [ ] Task 11: BankImportService — cancelar, listar, buscar por ID
-- [ ] Task 12: BankImportController
-- [ ] Task 13: Testes do BankImportService
+- [X] Task 1: Branch + dependências Maven
+- [X] Task 2: Flyway migration V6
+- [X] Task 3: Entidades JPA + enums
+- [X] Task 4: Repositories
+- [X] Task 5: DTOs
+- [X] Task 6: Parser OFX
+- [X] Task 7: Parser CSV (auto-detect + template fallback)
+- [X] Task 8: BankImportService — upload e parsing
+- [X] Task 9: BankImportService — edição de itens (individual + batch)
+- [X] Task 10: BankImportService — confirmar importação
+- [X] Task 11: BankImportService — cancelar, listar, buscar por ID
+- [X] Task 12: BankImportController
+- [X] Task 13: Testes do BankImportService
 - [ ] Task 14: Frontend — models e BankImportService
 - [ ] Task 15: Frontend — rotas e navegação
 - [ ] Task 16: Frontend — BankImportUploadComponent
