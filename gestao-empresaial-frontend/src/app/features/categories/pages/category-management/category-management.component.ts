@@ -1,12 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit, computed } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 import { CategoryService } from '../../services/category.service';
 import { DrawerComponent } from '../../../../shared/ui/drawer/drawer.component';
 import { CategoryDrawerFormComponent } from '../../components/category-drawer-form/category-drawer-form.component';
 
 @Component({
   selector: 'app-category-management',
-  imports: [ReactiveFormsModule, DrawerComponent, CategoryDrawerFormComponent],
+  imports: [DrawerComponent, CategoryDrawerFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './category-management.component.html',
 })
