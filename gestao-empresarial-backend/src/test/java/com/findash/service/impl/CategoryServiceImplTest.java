@@ -88,7 +88,7 @@ class CategoryServiceImplTest {
         group.setId(groupId);
 
         when(groupRepository.findByIdAndCompanyId(groupId, companyId)).thenReturn(Optional.of(group));
-        when(categoryRepository.existsByGroupId(groupId)).thenReturn(true);
+        when(categoryRepository.existsByGroupIdAndActiveTrue(groupId)).thenReturn(true);
 
         assertThrows(BusinessRuleException.class, () -> categoryService.deleteGroup(companyId, groupId));
     }

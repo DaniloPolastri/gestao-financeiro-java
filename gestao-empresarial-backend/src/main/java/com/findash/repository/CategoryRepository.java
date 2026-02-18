@@ -11,5 +11,5 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByCompanyIdAndActiveTrue(UUID companyId);
     Optional<Category> findByIdAndCompanyId(UUID id, UUID companyId);
     boolean existsByGroupIdAndNameIgnoreCase(UUID groupId, String name);
-    boolean existsByGroupId(UUID groupId);
+    boolean existsByGroupIdAndActiveTrue(UUID groupId);
 }

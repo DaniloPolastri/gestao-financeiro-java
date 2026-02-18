@@ -81,7 +81,7 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryGroup group = groupRepository.findByIdAndCompanyId(groupId, companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Grupo de categoria", groupId));
 
-        if (categoryRepository.existsByGroupId(groupId)) {
+        if (categoryRepository.existsByGroupIdAndActiveTrue(groupId)) {
             throw new BusinessRuleException("Nao e possivel excluir grupo com categorias vinculadas. Remova ou reclassifique as categorias primeiro.");
         }
 
