@@ -1,0 +1,39 @@
+<div class="flex items-center gap-2 flex-wrap">
+  @for (preset of presets; track preset.key) {
+    <button
+      (click)="selectPreset(preset.key)"
+      class="px-3 py-1.5 text-sm rounded-md border transition-colors"
+      [class]="activePreset() === preset.key
+        ? 'bg-blue-600 text-white border-blue-600'
+        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'"
+    >
+      {{ preset.label }}
+    </button>
+  }
+
+  @if (activePreset() === 'custom') {
+    <div class="flex items-center gap-2 ml-2">
+      <input
+        type="date"
+        class="px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+        [ngModel]="customFrom()"
+        (ngModelChange)="customFrom.set($event)"
+      />
+      <span class="text-gray-400 text-sm">até</span>
+      <input
+        type="date"
+        class="px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+        [ngModel]="customTo()"
+        (ngModelChange)="customTo.set($event)"
+        [min]="customFrom()"
+      />
+      <button
+        (click)="applyCustom()"
+        [disabled]="!isCustomValid()"
+        class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Aplicar
+      </button>
+    </div>
+  }
+</div>
