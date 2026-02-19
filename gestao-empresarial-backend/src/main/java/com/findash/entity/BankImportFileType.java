@@ -1,5 +1,5 @@
 package com.findash.entity;
 
 public enum BankImportFileType {
-    OFX, CSV
+    OFX, CSV, PDF
 }
