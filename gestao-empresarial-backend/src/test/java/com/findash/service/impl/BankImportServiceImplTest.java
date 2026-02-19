@@ -32,6 +32,7 @@ class BankImportServiceImplTest {
     @Mock private CategoryRepository categoryRepository;
     @Mock private OfxParser ofxParser;
     @Mock private CsvParser csvParser;
+    @Mock private PdfParser pdfParser;
 
     private BankImportServiceImpl service;
     private UUID companyId;
@@ -41,7 +42,7 @@ class BankImportServiceImplTest {
     void setUp() {
         service = new BankImportServiceImpl(importRepository, itemRepository,
             matchRuleRepository, accountRepository, supplierRepository,
-            clientRepository, categoryRepository, ofxParser, csvParser);
+            clientRepository, categoryRepository, ofxParser, csvParser, pdfParser);
         companyId = UUID.randomUUID();
         userId = UUID.randomUUID();
     }

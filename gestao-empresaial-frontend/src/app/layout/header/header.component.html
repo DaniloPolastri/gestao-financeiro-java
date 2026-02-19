@@ -16,7 +16,7 @@
 
       @if (dropdownOpen()) {
         <div
-          class="absolute right-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+          class="absolute right-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg z-50"
         >
           @for (company of companyService.companies(); track company.id) {
             <button

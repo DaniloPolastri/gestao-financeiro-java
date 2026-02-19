@@ -260,7 +260,7 @@ Depois de validar o MVP, considerar:
 8. [ ] **v3.0:** Emissão de nota fiscal
 
 ---
-
+S
 ## Regra de Ouro
 
 Quando em dúvida se algo entra no MVP, pergunte:

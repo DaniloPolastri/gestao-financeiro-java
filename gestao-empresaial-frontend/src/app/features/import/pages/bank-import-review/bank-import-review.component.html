@@ -3,193 +3,191 @@
     <i class="pi pi-spin pi-spinner text-3xl text-blue-600"></i>
   </div>
 } @else if (bankImport()) {
-  <div class="px-6 py-6 max-w-screen-xl mx-auto">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Revisão de Importação</h1>
-        <p class="text-sm text-gray-500 mt-1">{{ bankImport()!.fileName }}</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="text-sm text-gray-600">
-          {{ readyCount() }} de {{ totalCount() }} prontos
-        </span>
-        <button
-          (click)="showConfirmCancel.set(true)"
-          class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-        >
-          Cancelar
-        </button>
-        <button
-          (click)="confirm()"
-          [disabled]="!allReady() || confirming()"
-          class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          [title]="!allReady() ? 'Preencha fornecedor e categoria em todos os itens' : ''"
-        >
-          @if (confirming()) {
-            <i class="pi pi-spin pi-spinner mr-2"></i>
-          }
-          Confirmar Importação
-        </button>
-      </div>
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Revisão de Importação</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ bankImport()!.fileName }}</p>
     </div>
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-gray-600">
+        {{ readyCount() }} de {{ totalCount() }} prontos
+      </span>
+      <button
+        (click)="showConfirmCancel.set(true)"
+        class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+      >
+        Cancelar
+      </button>
+      <button
+        (click)="confirm()"
+        [disabled]="!allReady() || confirming()"
+        class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        [title]="!allReady() ? 'Preencha fornecedor e categoria em todos os itens' : ''"
+      >
+        @if (confirming()) {
+          <i class="pi pi-spin pi-spinner mr-2"></i>
+        }
+        Confirmar Importação
+      </button>
+    </div>
+  </div>
 
-    <!-- Bulk action bar -->
-    @if (selectedIds().size > 0) {
-      <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-4">
-        <span class="text-sm font-medium text-blue-700">{{ selectedIds().size }} selecionados</span>
-        <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkSupplier>
-          <option value="">Fornecedor/Cliente...</option>
-          @if (suppliers().length > 0) {
-            <optgroup label="Fornecedores">
-              @for (s of suppliers(); track s.id) {
-                <option [value]="s.id">{{ s.name }}</option>
-              }
-            </optgroup>
-          }
-          @if (clients().length > 0) {
-            <optgroup label="Clientes">
-              @for (c of clients(); track c.id) {
-                <option [value]="c.id">{{ c.name }}</option>
-              }
-            </optgroup>
-          }
-        </select>
-        <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkCategory>
-          <option value="">Categoria...</option>
-          @for (c of categories(); track c.id) {
-            <option [value]="c.id">{{ c.name }}</option>
-          }
-        </select>
-        <button
-          (click)="applyBulk(bulkSupplier.value || null, bulkCategory.value || null)"
-          class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-        >
-          Aplicar
-        </button>
-      </div>
-    }
+  <!-- Bulk action bar -->
+  @if (selectedIds().size > 0) {
+    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-4">
+      <span class="text-sm font-medium text-blue-700">{{ selectedIds().size }} selecionados</span>
+      <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkSupplier>
+        <option value="">Fornecedor/Cliente...</option>
+        @if (suppliers().length > 0) {
+          <optgroup label="Fornecedores">
+            @for (s of suppliers(); track s.id) {
+              <option [value]="s.id">{{ s.name }}</option>
+            }
+          </optgroup>
+        }
+        @if (clients().length > 0) {
+          <optgroup label="Clientes">
+            @for (c of clients(); track c.id) {
+              <option [value]="c.id">{{ c.name }}</option>
+            }
+          </optgroup>
+        }
+      </select>
+      <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkCategory>
+        <option value="">Categoria...</option>
+        @for (c of categories(); track c.id) {
+          <option [value]="c.id">{{ c.name }}</option>
+        }
+      </select>
+      <button
+        (click)="applyBulk(bulkSupplier.value || null, bulkCategory.value || null)"
+        class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+      >
+        Aplicar
+      </button>
+    </div>
+  }
 
-    <!-- Tabela -->
-    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-          <tr>
-            <th class="px-4 py-3 w-8">
-              <input type="checkbox" [checked]="allSelected()" (change)="toggleSelectAll()" />
-            </th>
-            <th class="px-4 py-3 text-left">Data</th>
-            <th class="px-4 py-3 text-left">Descrição</th>
-            <th class="px-4 py-3 text-right">Valor</th>
-            <th class="px-4 py-3 text-center">Tipo</th>
-            <th class="px-4 py-3 text-left">Fornecedor / Cliente</th>
-            <th class="px-4 py-3 text-left">Categoria</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          @for (item of bankImport()!.items; track item.id) {
-            <tr [class]="item.possibleDuplicate ? 'bg-amber-50' : 'hover:bg-gray-50'">
-              <td class="px-4 py-3">
-                <input
-                  type="checkbox"
-                  [checked]="selectedIds().has(item.id)"
-                  (change)="toggleSelect(item.id)"
-                />
-              </td>
-              <td class="px-4 py-3 text-gray-700">{{ item.date }}</td>
-              <td class="px-4 py-3 text-gray-900">
-                {{ item.description }}
-                @if (item.possibleDuplicate) {
-                  <span class="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                    Possível duplicado
-                  </span>
-                }
-              </td>
-              <td
-                class="px-4 py-3 text-right font-mono"
-                [class]="item.type === 'CREDIT' ? 'text-emerald-600' : 'text-red-600'"
-              >
-                R$ {{ item.amount | number: '1.2-2' }}
-              </td>
-              <td class="px-4 py-3 text-center">
-                <span
-                  class="text-xs px-2 py-1 rounded-full whitespace-nowrap"
-                  [class]="
-                    item.accountType === 'PAYABLE'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-emerald-100 text-emerald-700'
-                  "
-                >
-                  {{ item.accountType === 'PAYABLE' ? 'A Pagar' : 'A Receber' }}
+  <!-- Tabela -->
+  <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+        <tr>
+          <th class="px-4 py-3 w-8">
+            <input type="checkbox" [checked]="allSelected()" (change)="toggleSelectAll()" />
+          </th>
+          <th class="px-4 py-3 text-left">Data</th>
+          <th class="px-4 py-3 text-left">Descrição</th>
+          <th class="px-4 py-3 text-right">Valor</th>
+          <th class="px-4 py-3 text-center">Tipo</th>
+          <th class="px-4 py-3 text-left">Fornecedor / Cliente</th>
+          <th class="px-4 py-3 text-left">Categoria</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        @for (item of bankImport()!.items; track item.id) {
+          <tr [class]="item.possibleDuplicate ? 'bg-amber-50' : 'hover:bg-gray-50'">
+            <td class="px-4 py-3">
+              <input
+                type="checkbox"
+                [checked]="selectedIds().has(item.id)"
+                (change)="toggleSelect(item.id)"
+              />
+            </td>
+            <td class="px-4 py-3 text-gray-700">{{ item.date }}</td>
+            <td class="px-4 py-3 text-gray-900">
+              {{ item.description }}
+              @if (item.possibleDuplicate) {
+                <span class="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                  Possível duplicado
                 </span>
-              </td>
-              <td class="px-4 py-3">
-                <select
-                  class="w-full text-sm border border-gray-300 rounded px-2 py-1"
-                  [class]="!item.supplierId ? 'border-red-300 bg-red-50' : ''"
-                  [ngModel]="item.supplierId"
-                  (ngModelChange)="updateItemField(item, 'supplierId', $event)"
-                >
-                  <option [ngValue]="null">Selecionar...</option>
-                  @if (suppliers().length > 0) {
-                    <optgroup label="Fornecedores">
-                      @for (s of suppliers(); track s.id) {
-                        <option [value]="s.id">{{ s.name }}</option>
-                      }
-                    </optgroup>
-                  }
-                  @if (clients().length > 0) {
-                    <optgroup label="Clientes">
-                      @for (c of clients(); track c.id) {
-                        <option [value]="c.id">{{ c.name }}</option>
-                      }
-                    </optgroup>
-                  }
-                </select>
-              </td>
-              <td class="px-4 py-3">
-                <select
-                  class="w-full text-sm border border-gray-300 rounded px-2 py-1"
-                  [class]="!item.categoryId ? 'border-red-300 bg-red-50' : ''"
-                  [ngModel]="item.categoryId"
-                  (ngModelChange)="updateItemField(item, 'categoryId', $event)"
-                >
-                  <option [ngValue]="null">Selecionar...</option>
-                  @for (c of categories(); track c.id) {
-                    <option [value]="c.id">{{ c.name }}</option>
-                  }
-                </select>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+              }
+            </td>
+            <td
+              class="px-4 py-3 text-right font-mono"
+              [class]="item.type === 'CREDIT' ? 'text-emerald-600' : 'text-red-600'"
+            >
+              R$ {{ item.amount | number: '1.2-2' }}
+            </td>
+            <td class="px-4 py-3 text-center">
+              <span
+                class="text-xs px-2 py-1 rounded-full whitespace-nowrap"
+                [class]="
+                  item.accountType === 'PAYABLE'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-emerald-100 text-emerald-700'
+                "
+              >
+                {{ item.accountType === 'PAYABLE' ? 'A Pagar' : 'A Receber' }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <select
+                class="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                [class]="!item.supplierId ? 'border-red-300 bg-red-50' : ''"
+                [ngModel]="item.supplierId"
+                (ngModelChange)="updateItemField(item, 'supplierId', $event)"
+              >
+                <option [ngValue]="null">Selecionar...</option>
+                @if (suppliers().length > 0) {
+                  <optgroup label="Fornecedores">
+                    @for (s of suppliers(); track s.id) {
+                      <option [value]="s.id">{{ s.name }}</option>
+                    }
+                  </optgroup>
+                }
+                @if (clients().length > 0) {
+                  <optgroup label="Clientes">
+                    @for (c of clients(); track c.id) {
+                      <option [value]="c.id">{{ c.name }}</option>
+                    }
+                  </optgroup>
+                }
+              </select>
+            </td>
+            <td class="px-4 py-3">
+              <select
+                class="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                [class]="!item.categoryId ? 'border-red-300 bg-red-50' : ''"
+                [ngModel]="item.categoryId"
+                (ngModelChange)="updateItemField(item, 'categoryId', $event)"
+              >
+                <option [ngValue]="null">Selecionar...</option>
+                @for (c of categories(); track c.id) {
+                  <option [value]="c.id">{{ c.name }}</option>
+                }
+              </select>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Modal cancelar -->
-    @if (showConfirmCancel()) {
-      <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Cancelar importação?</h3>
-          <p class="text-gray-600 text-sm mb-6">
-            Os itens desta importação serão descartados. Esta ação não pode ser desfeita.
-          </p>
-          <div class="flex justify-end gap-3">
-            <button
-              (click)="showConfirmCancel.set(false)"
-              class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Voltar
-            </button>
-            <button
-              (click)="cancelImport()"
-              class="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-              Cancelar importação
-            </button>
-          </div>
+  <!-- Modal cancelar -->
+  @if (showConfirmCancel()) {
+    <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Cancelar importação?</h3>
+        <p class="text-gray-600 text-sm mb-6">
+          Os itens desta importação serão descartados. Esta ação não pode ser desfeita.
+        </p>
+        <div class="flex justify-end gap-3">
+          <button
+            (click)="showConfirmCancel.set(false)"
+            class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            Voltar
+          </button>
+          <button
+            (click)="cancelImport()"
+            class="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+          >
+            Cancelar importação
+          </button>
         </div>
       </div>
-    }
-  </div>
+    </div>
+  }
 }

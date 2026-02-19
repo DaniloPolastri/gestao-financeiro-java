@@ -17,7 +17,7 @@ interface NavSection {
   selector: 'app-sidebar',
   imports: [RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block w-64 min-h-screen bg-[#1E1E2D] flex flex-col' },
+  host: { class: 'block w-64 min-h-screen bg-gray-900 flex flex-col' },
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {
