@@ -33,7 +33,7 @@
 - [X] Task 17: Frontend — BankImportReviewComponent
 - [X] Task 18: Frontend — BankImportListComponent
 - [X] Task 19: Template CSV para download
-- [ ] Task 20: Commit final e push
+- [X] Task 20: Commit final e push
 
 ---
 
