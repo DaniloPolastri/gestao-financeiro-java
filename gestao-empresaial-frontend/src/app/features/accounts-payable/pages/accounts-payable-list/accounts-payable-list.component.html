@@ -38,8 +38,8 @@
         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Vencimento</th>
         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-        <th class="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-        <th class="px-4 py-3"></th>
+        <th class="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-36">Valor</th>
+        <th class="px-4 py-3 w-20"></th>
       </tr>
     </thead>
     <tbody>
@@ -69,9 +69,9 @@
               {{ item.status }}
             </span>
           </td>
-          <td class="px-4 py-3 text-right font-mono text-red-600 whitespace-nowrap">{{ item.value }}</td>
-          <td class="px-4 py-3">
-            <div class="flex items-center justify-end gap-1">
+          <td class="px-4 py-3 text-right font-mono text-red-600 whitespace-nowrap w-36">{{ item.value }}</td>
+          <td class="px-4 py-3 w-20">
+            <div class="flex flex-row items-center justify-end gap-1">
               <button class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
                 <i class="pi pi-pencil text-sm"></i>
               </button>
