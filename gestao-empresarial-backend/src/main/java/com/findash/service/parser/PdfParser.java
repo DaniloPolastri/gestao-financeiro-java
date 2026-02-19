@@ -1,5 +1,6 @@
 package com.findash.service.parser;
 
+import com.findash.exception.BusinessRuleException;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -47,7 +48,7 @@ public class PdfParser implements BankStatementParser {
         }
 
         if (transactions.isEmpty()) {
-            throw new IllegalArgumentException(
+            throw new BusinessRuleException(
                     "Nao foi possivel extrair transacoes deste PDF. " +
                     "Tente exportar o extrato do seu banco em formato OFX ou CSV.");
         }
@@ -56,6 +57,8 @@ public class PdfParser implements BankStatementParser {
     }
 
     private ParsedTransaction tryParseLine(String line) {
+        if (line == null || line.isBlank()) return null;
+
         Matcher dateMatcher = DATE_PATTERN.matcher(line);
         if (!dateMatcher.find()) {
             return null;

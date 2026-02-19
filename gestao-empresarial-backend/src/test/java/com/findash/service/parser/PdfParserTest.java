@@ -1,5 +1,6 @@
 package com.findash.service.parser;
 
+import com.findash.exception.BusinessRuleException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -110,8 +111,8 @@ class PdfParserTest {
                 "Apenas texto informativo"
         );
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
+        BusinessRuleException ex = assertThrows(
+                BusinessRuleException.class,
                 () -> parser.parse(pdf, "extrato.pdf")
         );
         assertTrue(ex.getMessage().contains("Nao foi possivel extrair transacoes"));
