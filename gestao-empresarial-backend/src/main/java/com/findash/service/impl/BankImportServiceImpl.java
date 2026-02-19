@@ -26,6 +26,7 @@ public class BankImportServiceImpl implements BankImportService {
     private final CategoryRepository categoryRepository;
     private final OfxParser ofxParser;
     private final CsvParser csvParser;
+    private final PdfParser pdfParser;
 
     public BankImportServiceImpl(BankImportRepository importRepository,
                                  BankImportItemRepository itemRepository,
@@ -35,7 +36,8 @@ public class BankImportServiceImpl implements BankImportService {
                                  ClientRepository clientRepository,
                                  CategoryRepository categoryRepository,
                                  OfxParser ofxParser,
-                                 CsvParser csvParser) {
+                                 CsvParser csvParser,
+                                 PdfParser pdfParser) {
         this.importRepository = importRepository;
         this.itemRepository = itemRepository;
         this.matchRuleRepository = matchRuleRepository;
@@ -45,6 +47,7 @@ public class BankImportServiceImpl implements BankImportService {
         this.categoryRepository = categoryRepository;
         this.ofxParser = ofxParser;
         this.csvParser = csvParser;
+        this.pdfParser = pdfParser;
     }
 
     @Override
@@ -55,7 +58,11 @@ public class BankImportServiceImpl implements BankImportService {
 
         List<ParsedTransaction> transactions;
         try {
-            BankStatementParser parser = fileType == BankImportFileType.OFX ? ofxParser : csvParser;
+            BankStatementParser parser = switch (fileType) {
+                case OFX -> ofxParser;
+                case CSV -> csvParser;
+                case PDF -> pdfParser;
+            };
             transactions = parser.parse(file.getInputStream(), filename);
         } catch (BusinessRuleException e) {
             throw e;
@@ -218,7 +225,8 @@ public class BankImportServiceImpl implements BankImportService {
         String lower = filename.toLowerCase();
         if (lower.endsWith(".ofx") || lower.endsWith(".qfx")) return BankImportFileType.OFX;
         if (lower.endsWith(".csv")) return BankImportFileType.CSV;
-        throw new BusinessRuleException("Formato de arquivo nao suportado. Use OFX ou CSV.");
+        if (lower.endsWith(".pdf")) return BankImportFileType.PDF;
+        throw new BusinessRuleException("Formato de arquivo nao suportado. Use OFX, CSV ou PDF.");
     }
 
     private void applyMatchingRules(BankImportItem item, List<SupplierMatchRule> rules,
