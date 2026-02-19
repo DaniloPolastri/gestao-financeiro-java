@@ -1,0 +1,25 @@
+<div class="grid grid-cols-4 gap-4">
+  @for (card of cards; track card.key) {
+    <div class="border border-gray-200 rounded-lg p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div
+          class="w-10 h-10 rounded-lg flex items-center justify-center"
+          [class]="card.bg"
+        >
+          <i class="pi" [class]="card.icon + ' ' + card.color"></i>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mb-1">{{ card.label }}</p>
+      @if (loading()) {
+        <div class="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+      } @else {
+        <p class="text-xl font-bold font-mono text-gray-900">
+          {{
+            (summary()?.[card.key] ?? 0)
+              | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}
+        </p>
+      }
+    </div>
+  }
+</div>
