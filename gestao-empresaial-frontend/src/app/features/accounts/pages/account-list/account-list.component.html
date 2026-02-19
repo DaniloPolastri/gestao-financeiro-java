@@ -54,8 +54,8 @@
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Vencimento</th>
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th class="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-          <th class="px-4 py-3"></th>
+          <th class="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Valor</th>
+          <th class="px-4 py-3 w-20"></th>
         </tr>
       </thead>
       <tbody>
@@ -87,12 +87,12 @@
                 {{ getStatusLabel(account.status) }}
               </span>
             </td>
-            <td class="px-4 py-3 text-right font-mono"
+            <td class="px-4 py-3 text-right font-mono whitespace-nowrap"
               [class.text-red-600]="isPayable()"
               [class.text-emerald-600]="!isPayable()">
               {{ formatCurrency(account.amount) }}
             </td>
-            <td class="px-4 py-3 text-right">
+            <td class="px-4 py-3 text-right align-middle whitespace-nowrap">
               <button (click)="openEdit(account.id)" class="text-gray-400 hover:text-gray-600 mr-2">
                 <i class="pi pi-pencil text-sm"></i>
               </button>
