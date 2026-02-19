@@ -40,8 +40,19 @@
         <span class="text-sm font-medium text-blue-700">{{ selectedIds().size }} selecionados</span>
         <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkSupplier>
           <option value="">Fornecedor/Cliente...</option>
-          @for (s of suppliers(); track s.id) {
-            <option [value]="s.id">{{ s.name }}</option>
+          @if (suppliers().length > 0) {
+            <optgroup label="Fornecedores">
+              @for (s of suppliers(); track s.id) {
+                <option [value]="s.id">{{ s.name }}</option>
+              }
+            </optgroup>
+          }
+          @if (clients().length > 0) {
+            <optgroup label="Clientes">
+              @for (c of clients(); track c.id) {
+                <option [value]="c.id">{{ c.name }}</option>
+              }
+            </optgroup>
           }
         </select>
         <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkCategory>
@@ -120,8 +131,14 @@
                   (ngModelChange)="updateItemField(item, 'supplierId', $event)"
                 >
                   <option [ngValue]="null">Selecionar...</option>
-                  @for (s of suppliers(); track s.id) {
-                    <option [value]="s.id">{{ s.name }}</option>
+                  @if (item.accountType === 'PAYABLE') {
+                    @for (s of suppliers(); track s.id) {
+                      <option [value]="s.id">{{ s.name }}</option>
+                    }
+                  } @else {
+                    @for (c of clients(); track c.id) {
+                      <option [value]="c.id">{{ c.name }}</option>
+                    }
                   }
                 </select>
               </td>
