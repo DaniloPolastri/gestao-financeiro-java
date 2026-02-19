@@ -14,21 +14,21 @@
 
 ## Checklist de Progresso
 
-- [ ] Task 1: Branch + instalar chart.js
-- [ ] Task 2: Backend DTOs do dashboard
-- [ ] Task 3: Queries JPQL no AccountRepository
-- [ ] Task 4: DashboardService — summary e cash-flow
-- [ ] Task 5: DashboardService — revenue-expense e monthly-evolution
-- [ ] Task 6: DashboardController
-- [ ] Task 7: Testes do DashboardService
-- [ ] Task 8: Frontend — models e DashboardService
-- [ ] Task 9: Frontend — DashboardFilterComponent
-- [ ] Task 10: Frontend — SummaryCardsComponent
-- [ ] Task 11: Frontend — CashFlowChartComponent
-- [ ] Task 12: Frontend — RevenueExpenseChartComponent
-- [ ] Task 13: Frontend — MonthlyEvolutionChartComponent
-- [ ] Task 14: Frontend — DashboardComponent (orquestrador)
-- [ ] Task 15: Commit final, push e PR
+- [X] Task 1: Branch + instalar chart.js
+- [X] Task 2: Backend DTOs do dashboard
+- [X] Task 3: Queries JPQL no AccountRepository
+- [X] Task 4: DashboardService — summary e cash-flow
+- [X] Task 5: DashboardService — revenue-expense e monthly-evolution
+- [X] Task 6: DashboardController
+- [X] Task 7: Testes do DashboardService
+- [X] Task 8: Frontend — models e DashboardService
+- [X] Task 9: Frontend — DashboardFilterComponent
+- [X] Task 10: Frontend — SummaryCardsComponent
+- [X] Task 11: Frontend — CashFlowChartComponent
+- [X] Task 12: Frontend — RevenueExpenseChartComponent
+- [X] Task 13: Frontend — MonthlyEvolutionChartComponent
+- [X] Task 14: Frontend — DashboardComponent (orquestrador)
+- [X] Task 15: Commit final, push e PR
 
 ---
 
