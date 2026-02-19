@@ -131,14 +131,19 @@
                   (ngModelChange)="updateItemField(item, 'supplierId', $event)"
                 >
                   <option [ngValue]="null">Selecionar...</option>
-                  @if (item.accountType === 'PAYABLE') {
-                    @for (s of suppliers(); track s.id) {
-                      <option [value]="s.id">{{ s.name }}</option>
-                    }
-                  } @else {
-                    @for (c of clients(); track c.id) {
-                      <option [value]="c.id">{{ c.name }}</option>
-                    }
+                  @if (suppliers().length > 0) {
+                    <optgroup label="Fornecedores">
+                      @for (s of suppliers(); track s.id) {
+                        <option [value]="s.id">{{ s.name }}</option>
+                      }
+                    </optgroup>
+                  }
+                  @if (clients().length > 0) {
+                    <optgroup label="Clientes">
+                      @for (c of clients(); track c.id) {
+                        <option [value]="c.id">{{ c.name }}</option>
+                      }
+                    </optgroup>
                   }
                 </select>
               </td>

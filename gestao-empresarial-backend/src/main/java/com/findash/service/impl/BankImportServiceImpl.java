@@ -177,10 +177,11 @@ public class BankImportServiceImpl implements BankImportService {
                 item.getDescription(), item.getAmount(),
                 item.getDate(), item.getCategoryId()
             );
-            if (item.getAccountType() == AccountType.PAYABLE) {
-                account.setSupplierId(item.getSupplierId());
+            UUID counterpartyId = item.getSupplierId();
+            if (supplierRepository.existsById(counterpartyId)) {
+                account.setSupplierId(counterpartyId);
             } else {
-                account.setClientId(item.getSupplierId()); // supplierId guarda o clientId para RECEIVABLE
+                account.setClientId(counterpartyId);
             }
             accountRepository.save(account);
 
@@ -282,7 +283,9 @@ public class BankImportServiceImpl implements BankImportService {
         String supplierName = null;
         if (item.getSupplierId() != null) {
             supplierName = supplierRepository.findById(item.getSupplierId())
-                .map(s -> s.getName()).orElse(null);
+                .map(s -> s.getName())
+                .or(() -> clientRepository.findById(item.getSupplierId()).map(c -> c.getName()))
+                .orElse(null);
         }
         String categoryName = null;
         if (item.getCategoryId() != null) {
