@@ -48,8 +48,8 @@ export class BankImportUploadComponent {
     }
 
     const ext = file.name.toLowerCase().split('.').pop();
-    if (!['ofx', 'qfx', 'csv'].includes(ext ?? '')) {
-      this.error.set('Formato não suportado. Use arquivos OFX ou CSV.');
+    if (!['ofx', 'qfx', 'csv', 'pdf'].includes(ext ?? '')) {
+      this.error.set('Formato não suportado. Use arquivos OFX, CSV ou PDF.');
       return;
     }
 

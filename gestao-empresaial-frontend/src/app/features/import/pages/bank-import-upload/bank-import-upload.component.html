@@ -1,7 +1,7 @@
-<div class="max-w-2xl mx-auto py-8 px-4">
+<div class="max-w-2xl">
   <div class="mb-6">
-    <h1 class="text-2xl font-semibold text-gray-900">Importar Extrato</h1>
-    <p class="text-sm text-gray-500 mt-1">Arquivos OFX ou CSV, máximo 5MB</p>
+    <h1 class="text-2xl font-bold text-gray-900">Importar Extrato</h1>
+    <p class="text-sm text-gray-500 mt-1">Arquivos OFX, CSV ou PDF, máximo 5MB</p>
   </div>
 
   <!-- Dropzone -->
@@ -26,9 +26,9 @@
         </div>
         <label class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
           Selecionar arquivo
-          <input type="file" class="hidden" accept=".ofx,.qfx,.csv" (change)="onFileSelected($event)" />
+          <input type="file" class="hidden" accept=".ofx,.qfx,.csv,.pdf" (change)="onFileSelected($event)" />
         </label>
-        <p class="text-xs text-gray-400">OFX, QFX ou CSV — máximo 5MB</p>
+        <p class="text-xs text-gray-400">OFX, QFX, CSV ou PDF — máximo 5MB</p>
       </div>
     }
   </div>

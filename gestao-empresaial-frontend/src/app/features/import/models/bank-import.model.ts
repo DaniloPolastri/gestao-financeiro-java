@@ -15,7 +15,7 @@ export interface BankImportItem {
 export interface BankImport {
   id: string;
   fileName: string;
-  fileType: 'OFX' | 'CSV';
+  fileType: 'OFX' | 'CSV' | 'PDF';
   status: 'PENDING_REVIEW' | 'COMPLETED' | 'CANCELLED';
   totalRecords: number;
   createdAt: string;
@@ -25,7 +25,7 @@ export interface BankImport {
 export interface BankImportSummary {
   id: string;
   fileName: string;
-  fileType: 'OFX' | 'CSV';
+  fileType: 'OFX' | 'CSV' | 'PDF';
   status: 'PENDING_REVIEW' | 'COMPLETED' | 'CANCELLED';
   totalRecords: number;
   createdAt: string;
