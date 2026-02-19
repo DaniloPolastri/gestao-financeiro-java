@@ -27,12 +27,12 @@
 - [X] Task 11: BankImportService — cancelar, listar, buscar por ID
 - [X] Task 12: BankImportController
 - [X] Task 13: Testes do BankImportService
-- [ ] Task 14: Frontend — models e BankImportService
-- [ ] Task 15: Frontend — rotas e navegação
-- [ ] Task 16: Frontend — BankImportUploadComponent
-- [ ] Task 17: Frontend — BankImportReviewComponent
-- [ ] Task 18: Frontend — BankImportListComponent
-- [ ] Task 19: Template CSV para download
+- [X] Task 14: Frontend — models e BankImportService
+- [X] Task 15: Frontend — rotas e navegação
+- [X] Task 16: Frontend — BankImportUploadComponent
+- [X] Task 17: Frontend — BankImportReviewComponent
+- [X] Task 18: Frontend — BankImportListComponent
+- [X] Task 19: Template CSV para download
 - [ ] Task 20: Commit final e push
 
 ---

@@ -1,0 +1,66 @@
+<div class="px-6 py-6 max-w-screen-xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-semibold text-gray-900">Importações</h1>
+    <a
+      routerLink="nova"
+      class="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+    >
+      Nova Importação
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <i class="pi pi-spin pi-spinner text-3xl text-blue-600"></i>
+    </div>
+  } @else if (imports().length === 0) {
+    <div class="text-center py-16 text-gray-500">
+      <i class="pi pi-upload text-4xl mb-3 block"></i>
+      <p class="font-medium">Nenhuma importação ainda</p>
+      <p class="text-sm mt-1">Importe um extrato OFX ou CSV para começar</p>
+    </div>
+  } @else {
+    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+          <tr>
+            <th class="px-4 py-3 text-left">Arquivo</th>
+            <th class="px-4 py-3 text-left">Tipo</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-right">Registros</th>
+            <th class="px-4 py-3 text-left">Data</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @for (imp of imports(); track imp.id) {
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-gray-900 font-medium">{{ imp.fileName }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ imp.fileType }}</td>
+              <td class="px-4 py-3">
+                <span class="text-xs px-2 py-1 rounded-full" [class]="statusClass(imp.status)">
+                  {{ statusLabel(imp.status) }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right text-gray-700">{{ imp.totalRecords }}</td>
+              <td class="px-4 py-3 text-gray-600">
+                {{ imp.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="px-4 py-3 text-right">
+                @if (imp.status === 'PENDING_REVIEW') {
+                  <a [routerLink]="[imp.id, 'revisao']" class="text-blue-600 hover:underline text-sm">
+                    Ver Revisão
+                  </a>
+                } @else {
+                  <a [routerLink]="[imp.id, 'revisao']" class="text-gray-500 hover:underline text-sm">
+                    Ver Detalhes
+                  </a>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

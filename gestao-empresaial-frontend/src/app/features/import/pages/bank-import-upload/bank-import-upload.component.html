@@ -1,0 +1,63 @@
+<div class="max-w-2xl mx-auto py-8 px-4">
+  <div class="mb-6">
+    <h1 class="text-2xl font-semibold text-gray-900">Importar Extrato</h1>
+    <p class="text-sm text-gray-500 mt-1">Arquivos OFX ou CSV, máximo 5MB</p>
+  </div>
+
+  <!-- Dropzone -->
+  <div
+    class="border-2 border-dashed rounded-lg p-12 text-center transition-colors"
+    [class]="isDragging() ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+  >
+    @if (loading()) {
+      <div class="flex flex-col items-center gap-3">
+        <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+        <p class="text-gray-600">Processando arquivo...</p>
+      </div>
+    } @else {
+      <div class="flex flex-col items-center gap-4">
+        <i class="pi pi-upload text-4xl text-gray-400"></i>
+        <div>
+          <p class="text-gray-700 font-medium">Arraste o arquivo aqui</p>
+          <p class="text-gray-500 text-sm mt-1">ou</p>
+        </div>
+        <label class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+          Selecionar arquivo
+          <input type="file" class="hidden" accept=".ofx,.qfx,.csv" (change)="onFileSelected($event)" />
+        </label>
+        <p class="text-xs text-gray-400">OFX, QFX ou CSV — máximo 5MB</p>
+      </div>
+    }
+  </div>
+
+  <!-- Erro -->
+  @if (error()) {
+    <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <p class="text-red-700 text-sm">{{ errorMessage }}</p>
+      @if (isCsvError) {
+        <button
+          (click)="downloadTemplate()"
+          class="mt-2 text-sm text-blue-600 hover:underline font-medium"
+        >
+          Baixar template CSV padrão
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Link para template sempre visível -->
+  <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+    <p class="text-sm text-gray-600">
+      Usando CSV? Certifique-se que o arquivo segue o formato esperado.
+    </p>
+    <button
+      (click)="downloadTemplate()"
+      class="mt-1 text-sm text-blue-600 hover:underline"
+    >
+      Baixar template CSV
+    </button>
+  </div>
+</div>
