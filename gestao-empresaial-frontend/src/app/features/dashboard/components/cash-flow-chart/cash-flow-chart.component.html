@@ -1,0 +1,21 @@
+<div class="border border-gray-200 rounded-lg p-6">
+  <h2 class="text-base font-semibold text-gray-900 mb-4">Fluxo de Caixa</h2>
+  @if (loading()) {
+    <div class="h-64 bg-gray-100 rounded animate-pulse"></div>
+  } @else if (data().length === 0) {
+    <div
+      class="h-64 flex items-center justify-center text-gray-400 text-sm"
+    >
+      Nenhum lançamento neste período
+    </div>
+  } @else {
+    <div style="height: 256px">
+      <p-chart
+        type="line"
+        [data]="chartData()"
+        [options]="chartOptions"
+        height="256"
+      />
+    </div>
+  }
+</div>
