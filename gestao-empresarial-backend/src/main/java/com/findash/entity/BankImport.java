@@ -26,13 +26,13 @@ public class BankImport {
     @Column(nullable = false)
     private BankImportStatus status = BankImportStatus.PENDING_REVIEW;
 
-    @Column(name = "total_records")
+    @Column(name = "total_records", nullable = false)
     private int totalRecords;
 
     @Column(name = "imported_by")
     private UUID importedBy;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     protected BankImport() {}

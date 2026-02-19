@@ -24,7 +24,7 @@ public class SupplierMatchRule {
     @Column(name = "category_id")
     private UUID categoryId;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     protected SupplierMatchRule() {}

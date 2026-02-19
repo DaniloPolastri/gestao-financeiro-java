@@ -44,14 +44,14 @@ public class BankImportItem {
     @Column(name = "category_id")
     private UUID categoryId;
 
-    @Column(name = "possible_duplicate")
+    @Column(name = "possible_duplicate", nullable = false)
     private boolean possibleDuplicate = false;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "original_data", columnDefinition = "jsonb")
     private Map<String, Object> originalData;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     protected BankImportItem() {}
