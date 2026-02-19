@@ -1,18 +1,64 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  DashboardService,
+  DashboardData,
+} from '../../services/dashboard.service';
+import { DashboardPeriod } from '../../models/dashboard.model';
+import { DashboardFilterComponent } from '../../components/dashboard-filter/dashboard-filter.component';
+import { SummaryCardsComponent } from '../../components/summary-cards/summary-cards.component';
+import { CashFlowChartComponent } from '../../components/cash-flow-chart/cash-flow-chart.component';
+import { RevenueExpenseChartComponent } from '../../components/revenue-expense-chart/revenue-expense-chart.component';
+import { MonthlyEvolutionChartComponent } from '../../components/monthly-evolution-chart/monthly-evolution-chart.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    DashboardFilterComponent,
+    SummaryCardsComponent,
+    CashFlowChartComponent,
+    RevenueExpenseChartComponent,
+    MonthlyEvolutionChartComponent,
+  ],
 })
 export class DashboardComponent {
-  protected readonly kpis = [
-    { label: 'Saldo Atual', value: 'R$ 124.500', icon: 'pi pi-wallet', change: '+12%', positive: true },
-    { label: 'Receitas', value: 'R$ 45.230', icon: 'pi pi-file', change: '+8.1%', positive: true },
-    { label: 'Despesas', value: 'R$ 18.400', icon: 'pi pi-credit-card', change: '+2.3%', positive: false },
-    { label: 'A Receber', value: 'R$ 8.150', icon: 'pi pi-clock', change: '7 dias', positive: null },
-  ];
+  private readonly dashboardService = inject(DashboardService);
 
-  protected readonly months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+  protected readonly loading = signal(true);
+  protected readonly dashboardData = signal<DashboardData | null>(null);
+  protected readonly period = signal<DashboardPeriod>(
+    this.currentMonthPeriod(),
+  );
+
+  constructor() {
+    effect(() => {
+      const p = this.period();
+      this.loading.set(true);
+      this.dashboardService.loadAll(p).subscribe({
+        next: (data) => {
+          this.dashboardData.set(data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+    });
+  }
+
+  protected onPeriodChange(period: DashboardPeriod): void {
+    this.period.set(period);
+  }
+
+  private currentMonthPeriod(): DashboardPeriod {
+    const today = new Date();
+    const from = new Date(today.getFullYear(), today.getMonth(), 1);
+    const fmt = (d: Date) => d.toISOString().split('T')[0];
+    return { from: fmt(from), to: fmt(today) };
+  }
 }
