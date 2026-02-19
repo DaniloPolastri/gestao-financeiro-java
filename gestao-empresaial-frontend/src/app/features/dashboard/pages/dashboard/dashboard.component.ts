@@ -1,10 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   DashboardService,
   DashboardData,
@@ -15,6 +18,7 @@ import { SummaryCardsComponent } from '../../components/summary-cards/summary-ca
 import { CashFlowChartComponent } from '../../components/cash-flow-chart/cash-flow-chart.component';
 import { RevenueExpenseChartComponent } from '../../components/revenue-expense-chart/revenue-expense-chart.component';
 import { MonthlyEvolutionChartComponent } from '../../components/monthly-evolution-chart/monthly-evolution-chart.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,6 +34,8 @@ import { MonthlyEvolutionChartComponent } from '../../components/monthly-evoluti
 })
 export class DashboardComponent {
   private readonly dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
+  private currentRequest?: Subscription;
 
   protected readonly loading = signal(true);
   protected readonly dashboardData = signal<DashboardData | null>(null);
@@ -40,19 +46,31 @@ export class DashboardComponent {
   constructor() {
     effect(() => {
       const p = this.period();
-      this.loading.set(true);
-      this.dashboardService.loadAll(p).subscribe({
-        next: (data) => {
-          this.dashboardData.set(data);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+      untracked(() => this.loadData(p));
     });
   }
 
   protected onPeriodChange(period: DashboardPeriod): void {
     this.period.set(period);
+  }
+
+  private loadData(period: DashboardPeriod): void {
+    this.currentRequest?.unsubscribe();
+    this.loading.set(true);
+
+    this.currentRequest = this.dashboardService
+      .loadAll(period)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.dashboardData.set(data);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Dashboard load failed:', err);
+          this.loading.set(false);
+        },
+      });
   }
 
   private currentMonthPeriod(): DashboardPeriod {
