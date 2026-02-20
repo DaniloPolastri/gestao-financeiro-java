@@ -12,7 +12,7 @@
 
 ---
 
-### Task 1: Coluna "Tipo" editável — Dropdown por item
+### [x] Task 1: Coluna "Tipo" editável — Dropdown por item
 
 **Files:**
 - Modify: `gestao-empresaial-frontend/src/app/features/import/pages/bank-import-review/bank-import-review.component.html:113-123`
@@ -67,7 +67,7 @@ git commit -m "feat: make account type column editable in import review"
 
 ---
 
-### Task 2: Dropdown "Tipo" na bulk action bar
+### [x] Task 2: Dropdown "Tipo" na bulk action bar
 
 **Files:**
 - Modify: `gestao-empresaial-frontend/src/app/features/import/pages/bank-import-review/bank-import-review.component.html:36-70`
@@ -134,7 +134,7 @@ git commit -m "feat: add account type to bulk action bar in import review"
 
 ---
 
-### Task 3: Paginação client-side
+### [x] Task 3: Paginação client-side
 
 **Files:**
 - Modify: `gestao-empresaial-frontend/src/app/features/import/pages/bank-import-review/bank-import-review.component.ts`
@@ -227,7 +227,7 @@ git commit -m "feat: add client-side pagination to import review (25 items/page)
 
 ---
 
-### Task 4: Checkbox "Revisei todos os itens"
+### [x] Task 4: Checkbox "Revisei todos os itens"
 
 **Files:**
 - Modify: `gestao-empresaial-frontend/src/app/features/import/pages/bank-import-review/bank-import-review.component.ts`
@@ -283,7 +283,7 @@ git commit -m "feat: add 'reviewed all items' checkbox before import confirmatio
 
 ---
 
-### Task 5: Build e verificação final
+### [x] Task 5: Build e verificação final
 
 **Step 1: Rodar build de produção**
 
