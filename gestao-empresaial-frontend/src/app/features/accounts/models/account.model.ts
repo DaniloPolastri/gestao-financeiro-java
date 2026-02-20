@@ -58,3 +58,8 @@ export interface PageResponse<T> {
   size: number;
   number: number;
 }
+
+export interface BatchPayRequest {
+  accountIds: string[];
+  paymentDate: string;
+}

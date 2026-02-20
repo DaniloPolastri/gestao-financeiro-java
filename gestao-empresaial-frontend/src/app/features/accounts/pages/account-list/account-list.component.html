@@ -55,7 +55,7 @@
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
           <th class="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Valor</th>
-          <th class="px-4 py-3 w-20"></th>
+          <th class="px-4 py-3 w-28"></th>
         </tr>
       </thead>
       <tbody>
@@ -93,10 +93,24 @@
               {{ formatCurrency(account.amount) }}
             </td>
             <td class="px-4 py-3 text-right align-middle whitespace-nowrap">
-              <button (click)="openEdit(account.id)" class="text-gray-400 hover:text-gray-600 mr-2">
+              @if (isPayableStatus(account.status)) {
+                <button
+                  (click)="markAsPaid(account.id)"
+                  [disabled]="payingId() === account.id"
+                  class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 disabled:opacity-50 transition-colors duration-150 mr-1.5"
+                  [attr.title]="isPayable() ? 'Marcar como pago' : 'Marcar como recebido'">
+                  @if (payingId() === account.id) {
+                    <i class="pi pi-spin pi-spinner text-xs"></i>
+                  } @else {
+                    <i class="pi pi-check text-xs"></i>
+                  }
+                  {{ isPayable() ? 'Pagar' : 'Receber' }}
+                </button>
+              }
+              <button (click)="openEdit(account.id)" class="text-gray-400 hover:text-gray-600 mr-1.5" title="Editar">
                 <i class="pi pi-pencil text-sm"></i>
               </button>
-              <button (click)="deleteAccount(account.id)" class="text-gray-400 hover:text-red-600">
+              <button (click)="deleteAccount(account.id)" class="text-gray-400 hover:text-red-600" title="Excluir">
                 <i class="pi pi-trash text-sm"></i>
               </button>
             </td>

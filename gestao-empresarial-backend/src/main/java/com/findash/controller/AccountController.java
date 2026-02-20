@@ -70,6 +70,13 @@ public class AccountController {
         return ResponseEntity.ok(accountService.pay(companyId, id, request));
     }
 
+    @PostMapping("/batch-pay")
+    public ResponseEntity<List<AccountResponseDTO>> batchPay(
+            @Valid @RequestBody BatchPayRequestDTO request) {
+        UUID companyId = CompanyContextHolder.get();
+        return ResponseEntity.ok(accountService.batchPay(companyId, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         UUID companyId = CompanyContextHolder.get();

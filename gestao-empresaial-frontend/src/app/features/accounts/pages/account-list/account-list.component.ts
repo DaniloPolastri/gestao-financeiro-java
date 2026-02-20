@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AccountService } from '../../services/account.service';
-import { AccountType, AccountStatus } from '../../models/account.model';
+import { AccountType, AccountStatus, AccountResponse } from '../../models/account.model';
 import { DrawerComponent } from '../../../../shared/ui/drawer/drawer.component';
 import { AccountDrawerFormComponent } from '../../components/account-drawer-form/account-drawer-form.component';
 
@@ -24,6 +24,7 @@ export class AccountListComponent implements OnInit {
   protected readonly activeTab = signal<string>('todos');
   protected readonly drawerOpen = signal(false);
   protected readonly editingId = signal<string | null>(null);
+  protected readonly payingId = signal<string | null>(null);
 
   protected readonly type: AccountType = this.route.snapshot.data['type'] ?? 'PAYABLE';
 
@@ -80,6 +81,25 @@ export class AccountListComponent implements OnInit {
 
   protected goToPage(page: number) {
     this.loadData(page);
+  }
+
+  protected isPayableStatus(status: AccountStatus): boolean {
+    return status === 'PENDING' || status === 'OVERDUE' || status === 'PARTIAL';
+  }
+
+  protected markAsPaid(id: string) {
+    this.payingId.set(id);
+    const today = new Date().toISOString().split('T')[0];
+    this.accountService.pay(id, { paymentDate: today }).subscribe({
+      next: () => {
+        this.payingId.set(null);
+        this.loadData();
+      },
+      error: (err) => {
+        this.payingId.set(null);
+        this.error.set(err.error?.message || 'Erro ao marcar como pago');
+      },
+    });
   }
 
   protected deleteAccount(id: string) {

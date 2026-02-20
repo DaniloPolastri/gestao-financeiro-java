@@ -18,6 +18,8 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpec
 
     Optional<Account> findByIdAndCompanyId(UUID id, UUID companyId);
 
+    List<Account> findByIdInAndCompanyId(List<UUID> ids, UUID companyId);
+
     boolean existsByCategoryId(UUID categoryId);
 
     boolean existsBySupplierId(UUID supplierId);
