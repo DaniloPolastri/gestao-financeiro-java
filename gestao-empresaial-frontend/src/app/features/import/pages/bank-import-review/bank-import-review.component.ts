@@ -96,7 +96,7 @@ export class BankImportReviewComponent implements OnInit {
       .subscribe((updated) => this.replaceItem(updated));
   }
 
-  protected applyBulk(supplierId: string | null, categoryId: string | null): void {
+  protected applyBulk(accountType: string | null, supplierId: string | null, categoryId: string | null): void {
     const importId = this.bankImport()!.id;
     const itemIds = Array.from(this.selectedIds());
     if (!itemIds.length) return;
@@ -104,6 +104,7 @@ export class BankImportReviewComponent implements OnInit {
     this.importService
       .updateItemsBatch(importId, {
         itemIds,
+        accountType: (accountType as 'PAYABLE' | 'RECEIVABLE') ?? undefined,
         supplierId: supplierId ?? undefined,
         categoryId: categoryId ?? undefined,
       })

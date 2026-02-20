@@ -37,6 +37,11 @@
   @if (selectedIds().size > 0) {
     <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-4">
       <span class="text-sm font-medium text-blue-700">{{ selectedIds().size }} selecionados</span>
+      <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkType>
+        <option value="">Tipo...</option>
+        <option value="PAYABLE">A Pagar</option>
+        <option value="RECEIVABLE">A Receber</option>
+      </select>
       <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkSupplier>
         <option value="">Fornecedor/Cliente...</option>
         @if (suppliers().length > 0) {
@@ -61,7 +66,7 @@
         }
       </select>
       <button
-        (click)="applyBulk(bulkSupplier.value || null, bulkCategory.value || null)"
+        (click)="applyBulk(bulkType.value || null, bulkSupplier.value || null, bulkCategory.value || null)"
         class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
       >
         Aplicar
