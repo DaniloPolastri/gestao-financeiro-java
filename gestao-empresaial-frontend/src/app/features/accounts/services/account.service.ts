@@ -8,6 +8,7 @@ import {
   CreateAccountRequest,
   UpdateAccountRequest,
   PayAccountRequest,
+  BatchPayRequest,
   PageResponse,
 } from '../models/account.model';
 
@@ -88,6 +89,10 @@ export class AccountService {
 
   pay(id: string, data: PayAccountRequest): Observable<AccountResponse> {
     return this.http.patch<AccountResponse>(`${this.API_URL}/${id}/pay`, data);
+  }
+
+  batchPay(data: BatchPayRequest): Observable<AccountResponse[]> {
+    return this.http.post<AccountResponse[]>(`${this.API_URL}/batch-pay`, data);
   }
 
   delete(id: string): Observable<void> {
