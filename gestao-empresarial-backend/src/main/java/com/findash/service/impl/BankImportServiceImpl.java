@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -189,6 +190,11 @@ public class BankImportServiceImpl implements BankImportService {
                 account.setSupplierId(counterpartyId);
             } else {
                 account.setClientId(counterpartyId);
+            }
+            if (item.getDate().isBefore(LocalDate.now())) {
+                account.setStatus(account.getType() == AccountType.PAYABLE
+                    ? AccountStatus.PAID : AccountStatus.RECEIVED);
+                account.setPaymentDate(item.getDate());
             }
             accountRepository.save(account);
 

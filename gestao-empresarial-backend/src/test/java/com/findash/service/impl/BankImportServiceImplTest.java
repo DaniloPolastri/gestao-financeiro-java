@@ -18,6 +18,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -133,5 +134,102 @@ class BankImportServiceImplTest {
         assertThrows(BusinessRuleException.class,
             () -> service.updateItem(companyId, importId, UUID.randomUUID(),
                 new UpdateImportItemRequestDTO(null, null, null)));
+    }
+
+    @Test
+    void confirm_pastDateItem_createsAccountAsPaid() {
+        UUID importId = UUID.randomUUID();
+        UUID supplierId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        BankImport bankImport = new BankImport(companyId, "f.ofx", BankImportFileType.OFX, userId);
+        bankImport.setId(importId);
+
+        LocalDate pastDate = LocalDate.now().minusDays(5);
+        BankImportItem item = new BankImportItem(importId, pastDate, "Pix enviado",
+            new BigDecimal("100.00"), BankImportItemType.DEBIT, AccountType.PAYABLE);
+        item.setId(UUID.randomUUID());
+        item.setSupplierId(supplierId);
+        item.setCategoryId(categoryId);
+
+        when(importRepository.findByIdAndCompanyId(importId, companyId))
+            .thenReturn(Optional.of(bankImport));
+        when(itemRepository.findByImportId(importId)).thenReturn(List.of(item));
+        when(supplierRepository.existsById(supplierId)).thenReturn(true);
+        when(matchRuleRepository.findByCompanyIdAndPattern(any(), any()))
+            .thenReturn(Optional.empty());
+        when(matchRuleRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.confirm(companyId, importId);
+
+        verify(accountRepository).save(argThat(account ->
+            account.getStatus() == AccountStatus.PAID &&
+            account.getPaymentDate() != null &&
+            account.getPaymentDate().equals(pastDate)
+        ));
+    }
+
+    @Test
+    void confirm_futureDateItem_createsAccountAsPending() {
+        UUID importId = UUID.randomUUID();
+        UUID supplierId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        BankImport bankImport = new BankImport(companyId, "f.ofx", BankImportFileType.OFX, userId);
+        bankImport.setId(importId);
+
+        LocalDate futureDate = LocalDate.now().plusDays(5);
+        BankImportItem item = new BankImportItem(importId, futureDate, "Agendamento",
+            new BigDecimal("200.00"), BankImportItemType.DEBIT, AccountType.PAYABLE);
+        item.setId(UUID.randomUUID());
+        item.setSupplierId(supplierId);
+        item.setCategoryId(categoryId);
+
+        when(importRepository.findByIdAndCompanyId(importId, companyId))
+            .thenReturn(Optional.of(bankImport));
+        when(itemRepository.findByImportId(importId)).thenReturn(List.of(item));
+        when(supplierRepository.existsById(supplierId)).thenReturn(true);
+        when(matchRuleRepository.findByCompanyIdAndPattern(any(), any()))
+            .thenReturn(Optional.empty());
+        when(matchRuleRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.confirm(companyId, importId);
+
+        verify(accountRepository).save(argThat(account ->
+            account.getStatus() == AccountStatus.PENDING &&
+            account.getPaymentDate() == null
+        ));
+    }
+
+    @Test
+    void confirm_pastDateReceivable_createsAccountAsReceived() {
+        UUID importId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+        BankImport bankImport = new BankImport(companyId, "f.ofx", BankImportFileType.OFX, userId);
+        bankImport.setId(importId);
+
+        LocalDate pastDate = LocalDate.now().minusDays(3);
+        BankImportItem item = new BankImportItem(importId, pastDate, "Recebimento",
+            new BigDecimal("500.00"), BankImportItemType.CREDIT, AccountType.RECEIVABLE);
+        item.setId(UUID.randomUUID());
+        item.setSupplierId(clientId);
+        item.setCategoryId(categoryId);
+
+        when(importRepository.findByIdAndCompanyId(importId, companyId))
+            .thenReturn(Optional.of(bankImport));
+        when(itemRepository.findByImportId(importId)).thenReturn(List.of(item));
+        when(supplierRepository.existsById(clientId)).thenReturn(false);
+        when(matchRuleRepository.findByCompanyIdAndPattern(any(), any()))
+            .thenReturn(Optional.empty());
+        when(matchRuleRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.confirm(companyId, importId);
+
+        verify(accountRepository).save(argThat(account ->
+            account.getStatus() == AccountStatus.RECEIVED &&
+            account.getPaymentDate() != null
+        ));
     }
 }
