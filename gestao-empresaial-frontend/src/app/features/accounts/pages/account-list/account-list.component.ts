@@ -33,6 +33,9 @@ export class AccountListComponent implements OnInit {
     const selectable = this.selectableAccounts();
     return selectable.length > 0 && selectable.every(a => this.selectedIds().has(a.id));
   });
+  protected readonly showPayDialog = signal(false);
+  protected readonly paymentDate = signal(new Date().toISOString().split('T')[0]);
+  protected readonly batchPayLoading = signal(false);
 
   protected readonly type: AccountType = this.route.snapshot.data['type'] ?? 'PAYABLE';
 
@@ -102,6 +105,34 @@ export class AccountListComponent implements OnInit {
 
   protected isSelectable(account: AccountResponse): boolean {
     return account.status !== 'PAID' && account.status !== 'RECEIVED';
+  }
+
+  protected openPayDialog() {
+    this.paymentDate.set(new Date().toISOString().split('T')[0]);
+    this.showPayDialog.set(true);
+  }
+
+  protected closePayDialog() {
+    this.showPayDialog.set(false);
+  }
+
+  protected confirmBatchPay() {
+    this.batchPayLoading.set(true);
+    this.accountService.batchPay({
+      accountIds: Array.from(this.selectedIds()),
+      paymentDate: this.paymentDate(),
+    }).subscribe({
+      next: () => {
+        this.batchPayLoading.set(false);
+        this.closePayDialog();
+        this.clearSelection();
+        this.loadData();
+      },
+      error: (err) => {
+        this.batchPayLoading.set(false);
+        this.error.set(err.error?.message || 'Erro ao marcar como pago');
+      },
+    });
   }
 
   protected onSaved() {
