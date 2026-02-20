@@ -76,6 +76,10 @@ export class BankImportReviewComponent implements OnInit {
     () => this.selectedIds().size === this.totalCount() && this.totalCount() > 0,
   );
 
+  protected readonly isEditable = computed(
+    () => this.bankImport()?.status === 'PENDING_REVIEW',
+  );
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
 
