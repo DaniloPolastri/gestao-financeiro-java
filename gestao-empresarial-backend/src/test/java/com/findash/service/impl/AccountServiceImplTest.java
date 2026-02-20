@@ -263,6 +263,69 @@ class AccountServiceImplTest {
         assertEquals(1, result.getTotalElements());
     }
 
+    // --- BATCH PAY ---
+
+    @Test
+    void batchPay_marksPendingAccountsAsPaid() {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+        Account acc1 = createMockAccount(id1, AccountType.PAYABLE, AccountStatus.PENDING, new BigDecimal("100.00"));
+        Account acc2 = createMockAccount(id2, AccountType.PAYABLE, AccountStatus.OVERDUE, new BigDecimal("200.00"));
+        var request = new BatchPayRequestDTO(List.of(id1, id2), LocalDate.of(2026, 2, 19));
+
+        when(accountRepository.findByIdInAndCompanyId(List.of(id1, id2), companyId))
+            .thenReturn(List.of(acc1, acc2));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(accountMapper.toResponse(any(), any(), any(), any()))
+            .thenReturn(createMockResponse("PAYABLE", "PAID"));
+
+        List<AccountResponseDTO> result = accountService.batchPay(companyId, request);
+
+        assertEquals(2, result.size());
+        assertEquals(AccountStatus.PAID, acc1.getStatus());
+        assertEquals(AccountStatus.PAID, acc2.getStatus());
+        assertEquals(LocalDate.of(2026, 2, 19), acc1.getPaymentDate());
+        verify(accountRepository, times(2)).save(any(Account.class));
+    }
+
+    @Test
+    void batchPay_skipsAlreadyPaidAccounts() {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+        Account acc1 = createMockAccount(id1, AccountType.PAYABLE, AccountStatus.PAID, new BigDecimal("100.00"));
+        Account acc2 = createMockAccount(id2, AccountType.PAYABLE, AccountStatus.PENDING, new BigDecimal("200.00"));
+        var request = new BatchPayRequestDTO(List.of(id1, id2), LocalDate.of(2026, 2, 19));
+
+        when(accountRepository.findByIdInAndCompanyId(List.of(id1, id2), companyId))
+            .thenReturn(List.of(acc1, acc2));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(accountMapper.toResponse(any(), any(), any(), any()))
+            .thenReturn(createMockResponse("PAYABLE", "PAID"));
+
+        List<AccountResponseDTO> result = accountService.batchPay(companyId, request);
+
+        assertEquals(1, result.size());
+        assertEquals(AccountStatus.PAID, acc1.getStatus()); // unchanged
+        verify(accountRepository, times(1)).save(any(Account.class)); // only acc2
+    }
+
+    @Test
+    void batchPay_receivable_setsReceivedStatus() {
+        UUID id1 = UUID.randomUUID();
+        Account acc1 = createMockAccount(id1, AccountType.RECEIVABLE, AccountStatus.PENDING, new BigDecimal("500.00"));
+        var request = new BatchPayRequestDTO(List.of(id1), LocalDate.of(2026, 2, 19));
+
+        when(accountRepository.findByIdInAndCompanyId(List.of(id1), companyId))
+            .thenReturn(List.of(acc1));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(accountMapper.toResponse(any(), any(), any(), any()))
+            .thenReturn(createMockResponse("RECEIVABLE", "RECEIVED"));
+
+        accountService.batchPay(companyId, request);
+
+        assertEquals(AccountStatus.RECEIVED, acc1.getStatus());
+    }
+
     // --- HELPERS ---
 
     private Account createMockAccount(UUID id, AccountType type, AccountStatus status, BigDecimal amount) {

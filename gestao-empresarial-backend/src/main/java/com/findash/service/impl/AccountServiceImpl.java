@@ -222,6 +222,23 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findAll(spec, pageable).map(this::toResponseWithRelations);
     }
 
+    @Override
+    public List<AccountResponseDTO> batchPay(UUID companyId, BatchPayRequestDTO request) {
+        List<Account> accounts = accountRepository.findByIdInAndCompanyId(request.accountIds(), companyId);
+
+        List<AccountResponseDTO> result = new ArrayList<>();
+        for (Account account : accounts) {
+            if (account.getStatus() == AccountStatus.PAID || account.getStatus() == AccountStatus.RECEIVED) {
+                continue;
+            }
+            account.setPaymentDate(request.paymentDate());
+            account.setStatus(account.getType() == AccountType.PAYABLE ? AccountStatus.PAID : AccountStatus.RECEIVED);
+            accountRepository.save(account);
+            result.add(toResponseWithRelations(account));
+        }
+        return result;
+    }
+
     private AccountResponseDTO toResponseWithRelations(Account account) {
         Category category = account.getCategoryId() != null
             ? categoryRepository.findById(account.getCategoryId()).orElse(null)
