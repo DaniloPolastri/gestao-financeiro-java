@@ -128,4 +128,68 @@ class PdfParserTest {
         assertEquals(1, result.size());
         assertEquals(0, new BigDecimal("450.00").compareTo(result.get(0).amount()));
     }
+
+    // --- Banco Inter format tests ---
+
+    @Test
+    void parse_interFormat_parsesTransactionsCorrectly() throws Exception {
+        InputStream pdf = createSamplePdf(
+                "6 de fevereiro de 2026 Saldo do dia: R$ 1.000,00",
+                "Pix recebido: CLIENTE ABC R$ 500,00 R$ 1.500,00",
+                "Pagamento efetuado: BOLETO XYZ -R$ 200,00 R$ 1.300,00"
+        );
+
+        List<ParsedTransaction> result = parser.parse(pdf, "inter.pdf").transactions();
+        assertEquals(2, result.size());
+
+        assertEquals(LocalDate.of(2026, 2, 6), result.get(0).date());
+        assertEquals("CREDIT", result.get(0).type());
+        assertEquals(0, new BigDecimal("500.00").compareTo(result.get(0).amount()));
+
+        assertEquals(LocalDate.of(2026, 2, 6), result.get(1).date());
+        assertEquals("DEBIT", result.get(1).type());
+        assertEquals(0, new BigDecimal("200.00").compareTo(result.get(1).amount()));
+    }
+
+    @Test
+    void parse_interFormat_multipleDateHeaders() throws Exception {
+        InputStream pdf = createSamplePdf(
+                "6 de fevereiro de 2026 Saldo do dia: R$ 500,00",
+                "Pix recebido: CLIENTE A R$ 100,00 R$ 600,00",
+                "7 de fevereiro de 2026 Saldo do dia: R$ 600,00",
+                "Pagamento efetuado: FORNECEDOR B -R$ 50,00 R$ 550,00"
+        );
+
+        List<ParsedTransaction> result = parser.parse(pdf, "inter.pdf").transactions();
+        assertEquals(2, result.size());
+
+        assertEquals(LocalDate.of(2026, 2, 6), result.get(0).date());
+        assertEquals(LocalDate.of(2026, 2, 7), result.get(1).date());
+    }
+
+    @Test
+    void parse_interFormat_extractsBankName() throws Exception {
+        InputStream pdf = createSamplePdf(
+                "Instituicao: Banco Inter,",
+                "6 de fevereiro de 2026 Saldo do dia: R$ 500,00",
+                "Pix recebido: CLIENTE A R$ 100,00 R$ 600,00"
+        );
+
+        ParseResult result = parser.parse(pdf, "inter.pdf");
+        assertEquals(1, result.transactions().size());
+        assertEquals("Banco Inter", result.bankName());
+    }
+
+    @Test
+    void parse_interFormat_ignoresSaldoLines() throws Exception {
+        InputStream pdf = createSamplePdf(
+                "6 de fevereiro de 2026 Saldo do dia: R$ 500,00",
+                "Saldo anterior R$ 400,00 R$ 400,00",
+                "Pix recebido: CLIENTE A R$ 100,00 R$ 500,00"
+        );
+
+        List<ParsedTransaction> result = parser.parse(pdf, "inter.pdf").transactions();
+        assertEquals(1, result.size());
+        assertEquals("CREDIT", result.get(0).type());
+    }
 }
