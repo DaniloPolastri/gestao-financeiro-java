@@ -20,7 +20,7 @@
 
 ### Step 1: Write failing tests
 
-- [ ] Adicionar teste `confirm_pastDateItem_createsAccountAsPaid` no `BankImportServiceImplTest.java`:
+- [x] Adicionar teste `confirm_pastDateItem_createsAccountAsPaid` no `BankImportServiceImplTest.java`:
 
 ```java
 @Test
@@ -123,12 +123,12 @@ void confirm_pastDateReceivable_createsAccountAsReceived() {
 
 ### Step 2: Run tests to verify they fail
 
-- [ ] Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=BankImportServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
+- [x] Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=BankImportServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
 - Expected: 3 novos testes FAIL (status sera PENDING em vez de PAID/RECEIVED)
 
 ### Step 3: Implement the fix
 
-- [ ] Modificar `BankImportServiceImpl.java`, metodo `confirm()`. Dentro do loop `for (BankImportItem item : items)`, apos criar o Account e setar supplier/client, adicionar verificacao de data:
+- [x] Modificar `BankImportServiceImpl.java`, metodo `confirm()`. Dentro do loop `for (BankImportItem item : items)`, apos criar o Account e setar supplier/client, adicionar verificacao de data:
 
 ```java
 // Apos a linha: account.setClientId(counterpartyId);
@@ -142,12 +142,12 @@ if (item.getDate().isBefore(LocalDate.now())) {
 
 ### Step 4: Run tests to verify they pass
 
-- [ ] Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=BankImportServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
+- [x] Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=BankImportServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
 - Expected: ALL PASS
 
 ### Step 5: Commit
 
-- [ ] `git add` dos arquivos modificados e `git commit -m "feat: auto-set PAID/RECEIVED status for past-date imported transactions"`
+- [x] `git add` dos arquivos modificados e `git commit -m "feat: auto-set PAID/RECEIVED status for past-date imported transactions"`
 
 ---
 
@@ -159,7 +159,7 @@ if (item.getDate().isBefore(LocalDate.now())) {
 
 ### Step 1: Create BatchPayRequestDTO
 
-- [ ] Criar o DTO:
+- [x]Criar o DTO:
 
 ```java
 package com.findash.dto;
@@ -180,7 +180,7 @@ public record BatchPayRequestDTO(
 
 ### Step 2: Add interface method
 
-- [ ] Adicionar em `AccountService.java`:
+- [x]Adicionar em `AccountService.java`:
 
 ```java
 List<AccountResponseDTO> batchPay(UUID companyId, BatchPayRequestDTO request);
@@ -188,7 +188,7 @@ List<AccountResponseDTO> batchPay(UUID companyId, BatchPayRequestDTO request);
 
 ### Step 3: Commit
 
-- [ ] `git commit -m "feat: add BatchPayRequestDTO and batchPay interface method"`
+- [x]`git commit -m "feat: add BatchPayRequestDTO and batchPay interface method"`
 
 ---
 
@@ -201,7 +201,7 @@ List<AccountResponseDTO> batchPay(UUID companyId, BatchPayRequestDTO request);
 
 ### Step 1: Add repository method
 
-- [ ] Adicionar em `AccountRepository.java`:
+- [x]Adicionar em `AccountRepository.java`:
 
 ```java
 List<Account> findByIdInAndCompanyId(List<UUID> ids, UUID companyId);
@@ -209,7 +209,7 @@ List<Account> findByIdInAndCompanyId(List<UUID> ids, UUID companyId);
 
 ### Step 2: Write failing tests
 
-- [ ] Adicionar testes no `AccountServiceImplTest.java`:
+- [x]Adicionar testes no `AccountServiceImplTest.java`:
 
 ```java
 @Test
@@ -276,12 +276,12 @@ void batchPay_receivable_setsReceivedStatus() {
 
 ### Step 3: Run tests to verify they fail
 
-- [ ] Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=AccountServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
+- [x]Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=AccountServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
 - Expected: FAIL (metodo batchPay nao existe ainda)
 
 ### Step 4: Implement batchPay in AccountServiceImpl
 
-- [ ] Adicionar metodo em `AccountServiceImpl.java`:
+- [x]Adicionar metodo em `AccountServiceImpl.java`:
 
 ```java
 @Override
@@ -304,12 +304,12 @@ public List<AccountResponseDTO> batchPay(UUID companyId, BatchPayRequestDTO requ
 
 ### Step 5: Run tests to verify they pass
 
-- [ ] Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=AccountServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
+- [x]Run: `cd gestao-empresarial-backend && ./mvnw test -pl . -Dtest=AccountServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false`
 - Expected: ALL PASS
 
 ### Step 6: Commit
 
-- [ ] `git commit -m "feat: implement batchPay service method with repository query"`
+- [x]`git commit -m "feat: implement batchPay service method with repository query"`
 
 ---
 
@@ -320,7 +320,7 @@ public List<AccountResponseDTO> batchPay(UUID companyId, BatchPayRequestDTO requ
 
 ### Step 1: Add endpoint
 
-- [ ] Adicionar no `AccountController.java`:
+- [x]Adicionar no `AccountController.java`:
 
 ```java
 @PostMapping("/batch-pay")
@@ -335,12 +335,12 @@ Import necessario: `import com.findash.dto.BatchPayRequestDTO;` e `import java.u
 
 ### Step 2: Run full backend tests
 
-- [ ] Run: `cd gestao-empresarial-backend && ./mvnw test`
+- [x]Run: `cd gestao-empresarial-backend && ./mvnw test`
 - Expected: ALL PASS
 
 ### Step 3: Commit
 
-- [ ] `git commit -m "feat: add POST /api/accounts/batch-pay endpoint"`
+- [x]`git commit -m "feat: add POST /api/accounts/batch-pay endpoint"`
 
 ---
 
@@ -352,7 +352,7 @@ Import necessario: `import com.findash.dto.BatchPayRequestDTO;` e `import java.u
 
 ### Step 1: Add BatchPayRequest interface
 
-- [ ] Adicionar no final de `account.model.ts`:
+- [x]Adicionar no final de `account.model.ts`:
 
 ```typescript
 export interface BatchPayRequest {
@@ -363,7 +363,7 @@ export interface BatchPayRequest {
 
 ### Step 2: Add batchPay method to service
 
-- [ ] Adicionar no `account.service.ts`, importar `BatchPayRequest` e adicionar metodo:
+- [x]Adicionar no `account.service.ts`, importar `BatchPayRequest` e adicionar metodo:
 
 ```typescript
 batchPay(data: BatchPayRequest): Observable<AccountResponse[]> {
@@ -373,7 +373,7 @@ batchPay(data: BatchPayRequest): Observable<AccountResponse[]> {
 
 ### Step 3: Commit
 
-- [ ] `git commit -m "feat: add batchPay method to frontend account service"`
+- [x]`git commit -m "feat: add batchPay method to frontend account service"`
 
 ---
 
@@ -385,7 +385,7 @@ batchPay(data: BatchPayRequest): Observable<AccountResponse[]> {
 
 ### Step 1: Add selection state to component
 
-- [ ] Adicionar signals e metodos de selecao no `account-list.component.ts`:
+- [x]Adicionar signals e metodos de selecao no `account-list.component.ts`:
 
 ```typescript
 // Novos signals (junto dos existentes)
@@ -432,7 +432,7 @@ Adicionar import de `AccountResponse` no topo do arquivo (se nao estiver).
 
 ### Step 2: Add checkboxes to template
 
-- [ ] No `account-list.component.html`, adicionar coluna de checkbox no `<thead>`:
+- [x]No `account-list.component.html`, adicionar coluna de checkbox no `<thead>`:
 
 Apos a tag `<tr>` no thead, antes da primeira `<th>`, adicionar:
 ```html
@@ -458,18 +458,18 @@ No `<tbody>`, dentro do `<tr>` de cada account, antes da primeira `<td>`, adicio
 
 ### Step 3: Clear selection on data reload
 
-- [ ] No metodo `loadData()`, adicionar `this.clearSelection();` no inicio (antes de `this.loading.set(true)`).
+- [x]No metodo `loadData()`, adicionar `this.clearSelection();` no inicio (antes de `this.loading.set(true)`).
 
 ### Step 4: Verify visually
 
-- [ ] Run: `cd gestao-empresaial-frontend && npm start`
+- [x]Run: `cd gestao-empresaial-frontend && npm start`
 - Verificar que checkboxes aparecem na tabela
 - Contas PAID/RECEIVED nao devem ter checkbox
 - "Selecionar todos" so seleciona contas elegiveis
 
 ### Step 5: Commit
 
-- [ ] `git commit -m "feat: add selection checkboxes to account list table"`
+- [x]`git commit -m "feat: add selection checkboxes to account list table"`
 
 ---
 
@@ -481,7 +481,7 @@ No `<tbody>`, dentro do `<tr>` de cada account, antes da primeira `<td>`, adicio
 
 ### Step 1: Add pay dialog state and method
 
-- [ ] Adicionar signals e metodo no `account-list.component.ts`:
+- [x]Adicionar signals e metodo no `account-list.component.ts`:
 
 ```typescript
 // Novos signals
@@ -523,7 +523,7 @@ Adicionar import de `BatchPayRequest` no model import (se necessario).
 
 ### Step 2: Add action bar and dialog to template
 
-- [ ] No `account-list.component.html`, apos o bloco de paginacao (antes do `<!-- Drawer -->`), adicionar:
+- [x]No `account-list.component.html`, apos o bloco de paginacao (antes do `<!-- Drawer -->`), adicionar:
 
 ```html
 <!-- Barra de acoes em lote -->
@@ -583,7 +583,7 @@ Adicionar import de `BatchPayRequest` no model import (se necessario).
 
 ### Step 3: Verify visually
 
-- [ ] Verificar no browser:
+- [x]Verificar no browser:
   - Selecionar contas → barra flutuante aparece na parte inferior
   - Clicar "Marcar como Pago" → dialog abre com data de hoje
   - Alterar data → funciona
@@ -591,7 +591,7 @@ Adicionar import de `BatchPayRequest` no model import (se necessario).
 
 ### Step 4: Commit
 
-- [ ] `git commit -m "feat: add batch pay action bar and confirmation dialog"`
+- [x]`git commit -m "feat: add batch pay action bar and confirmation dialog"`
 
 ---
 
@@ -599,17 +599,17 @@ Adicionar import de `BatchPayRequest` no model import (se necessario).
 
 ### Step 1: Backend tests
 
-- [ ] Run: `cd gestao-empresarial-backend && ./mvnw test`
+- [x]Run: `cd gestao-empresarial-backend && ./mvnw test`
 - Expected: ALL PASS
 
 ### Step 2: Frontend tests
 
-- [ ] Run: `cd gestao-empresaial-frontend && npm test`
+- [x]Run: `cd gestao-empresaial-frontend && npm test`
 - Expected: ALL PASS (ou nenhuma regressao)
 
 ### Step 3: Final commit (if any fixes needed)
 
-- [ ] Fix e commit de qualquer ajuste necessario
+- [x]Fix e commit de qualquer ajuste necessario
 
 ---
 
