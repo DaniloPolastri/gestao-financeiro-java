@@ -49,6 +49,12 @@
     <table class="w-full text-sm">
       <thead class="bg-gray-50 border-b border-gray-200">
         <tr>
+          <th class="px-4 py-3 w-10">
+            <input type="checkbox"
+              [checked]="allSelectableSelected()"
+              (change)="toggleSelectAll()"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+          </th>
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{{ entityLabel() }}</th>
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
           <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Vencimento</th>
@@ -61,6 +67,14 @@
       <tbody>
         @for (account of accounts(); track account.id) {
           <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="px-4 py-3 w-10">
+              @if (isSelectable(account)) {
+                <input type="checkbox"
+                  [checked]="selectedIds().has(account.id)"
+                  (change)="toggleSelect(account.id)"
+                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+              }
+            </td>
             <td class="px-4 py-3 font-medium text-gray-900">
               {{ isPayable() ? (account.supplier?.name || '—') : (account.client?.name || '—') }}
             </td>

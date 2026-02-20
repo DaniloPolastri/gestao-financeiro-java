@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AccountService } from '../../services/account.service';
-import { AccountType, AccountStatus } from '../../models/account.model';
+import { AccountType, AccountStatus, AccountResponse } from '../../models/account.model';
 import { DrawerComponent } from '../../../../shared/ui/drawer/drawer.component';
 import { AccountDrawerFormComponent } from '../../components/account-drawer-form/account-drawer-form.component';
 
@@ -24,6 +24,15 @@ export class AccountListComponent implements OnInit {
   protected readonly activeTab = signal<string>('todos');
   protected readonly drawerOpen = signal(false);
   protected readonly editingId = signal<string | null>(null);
+  protected readonly selectedIds = signal<Set<string>>(new Set());
+  protected readonly hasSelection = computed(() => this.selectedIds().size > 0);
+  protected readonly selectableAccounts = computed(() =>
+    this.accounts().filter(a => a.status !== 'PAID' && a.status !== 'RECEIVED')
+  );
+  protected readonly allSelectableSelected = computed(() => {
+    const selectable = this.selectableAccounts();
+    return selectable.length > 0 && selectable.every(a => this.selectedIds().has(a.id));
+  });
 
   protected readonly type: AccountType = this.route.snapshot.data['type'] ?? 'PAYABLE';
 
@@ -68,6 +77,33 @@ export class AccountListComponent implements OnInit {
     this.editingId.set(null);
   }
 
+  protected toggleSelect(id: string) {
+    const current = new Set(this.selectedIds());
+    if (current.has(id)) {
+      current.delete(id);
+    } else {
+      current.add(id);
+    }
+    this.selectedIds.set(current);
+  }
+
+  protected toggleSelectAll() {
+    if (this.allSelectableSelected()) {
+      this.selectedIds.set(new Set());
+    } else {
+      const ids = new Set(this.selectableAccounts().map(a => a.id));
+      this.selectedIds.set(ids);
+    }
+  }
+
+  protected clearSelection() {
+    this.selectedIds.set(new Set());
+  }
+
+  protected isSelectable(account: AccountResponse): boolean {
+    return account.status !== 'PAID' && account.status !== 'RECEIVED';
+  }
+
   protected onSaved() {
     this.closeDrawer();
     this.loadData();
@@ -108,6 +144,7 @@ export class AccountListComponent implements OnInit {
   }
 
   private loadData(page = 0) {
+    this.clearSelection();
     this.loading.set(true);
     const activeTabObj = this.tabs.find((t) => t.key === this.activeTab());
     const filters = activeTabObj?.statuses ? { status: activeTabObj.statuses } : undefined;
