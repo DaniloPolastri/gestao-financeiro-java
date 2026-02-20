@@ -18,4 +18,6 @@ public interface AccountService {
     Page<AccountResponseDTO> list(UUID companyId, AccountType type, List<AccountStatus> statuses,
                                    UUID categoryId, UUID supplierId, UUID clientId,
                                    LocalDate dueDateFrom, LocalDate dueDateTo, Pageable pageable);
+
+    List<AccountResponseDTO> batchPay(UUID companyId, BatchPayRequestDTO request);
 }
