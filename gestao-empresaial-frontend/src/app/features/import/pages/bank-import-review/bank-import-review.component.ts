@@ -34,6 +34,7 @@ export class BankImportReviewComponent implements OnInit {
   protected readonly confirming = signal(false);
   protected readonly selectedIds = signal<Set<string>>(new Set());
   protected readonly showConfirmCancel = signal(false);
+  protected readonly reviewed = signal(false);
 
   protected readonly currentReviewPage = signal(0);
   private readonly pageSize = 25;

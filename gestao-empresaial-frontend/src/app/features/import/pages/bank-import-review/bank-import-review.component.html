@@ -21,9 +21,9 @@
       </button>
       <button
         (click)="confirm()"
-        [disabled]="!allReady() || confirming()"
+        [disabled]="!allReady() || !reviewed() || confirming()"
         class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        [title]="!allReady() ? 'Preencha fornecedor e categoria em todos os itens' : ''"
+        [title]="!allReady() ? 'Preencha fornecedor e categoria em todos os itens' : !reviewed() ? 'Marque que revisou todos os itens' : ''"
       >
         @if (confirming()) {
           <i class="pi pi-spin pi-spinner mr-2"></i>
@@ -187,6 +187,18 @@
       </div>
     </div>
   }
+
+  <div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+    <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+      <input
+        type="checkbox"
+        [checked]="reviewed()"
+        (change)="reviewed.set(!reviewed())"
+        class="rounded border-gray-300"
+      />
+      Revisei todos os itens e confirmo que os tipos (A Pagar / A Receber) estão corretos
+    </label>
+  </div>
 
   <!-- Modal cancelar -->
   @if (showConfirmCancel()) {
