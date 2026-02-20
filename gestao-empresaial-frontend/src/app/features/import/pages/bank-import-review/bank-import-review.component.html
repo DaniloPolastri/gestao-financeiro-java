@@ -91,7 +91,7 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-        @for (item of bankImport()!.items; track item.id) {
+        @for (item of pagedItems(); track item.id) {
           <tr [class]="item.possibleDuplicate ? 'bg-amber-50' : 'hover:bg-gray-50'">
             <td class="px-4 py-3">
               <input
@@ -167,6 +167,26 @@
       </tbody>
     </table>
   </div>
+
+  @if (totalReviewPages() > 1) {
+    <div class="flex items-center justify-between mt-4">
+      <p class="text-xs text-gray-500">{{ allItems().length }} item(ns)</p>
+      <div class="flex gap-1">
+        @for (p of reviewPages(); track $index) {
+          <button
+            (click)="goToReviewPage($index)"
+            class="w-8 h-8 text-xs rounded-md"
+            [class.bg-blue-600]="currentReviewPage() === $index"
+            [class.text-white]="currentReviewPage() === $index"
+            [class.bg-gray-100]="currentReviewPage() !== $index"
+            [class.text-gray-600]="currentReviewPage() !== $index"
+          >
+            {{ $index + 1 }}
+          </button>
+        }
+      </div>
+    </div>
+  }
 
   <!-- Modal cancelar -->
   @if (showConfirmCancel()) {

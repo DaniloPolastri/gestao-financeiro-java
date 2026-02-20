@@ -35,6 +35,24 @@ export class BankImportReviewComponent implements OnInit {
   protected readonly selectedIds = signal<Set<string>>(new Set());
   protected readonly showConfirmCancel = signal(false);
 
+  protected readonly currentReviewPage = signal(0);
+  private readonly pageSize = 25;
+
+  protected readonly allItems = computed(() => this.bankImport()?.items ?? []);
+
+  protected readonly pagedItems = computed(() => {
+    const start = this.currentReviewPage() * this.pageSize;
+    return this.allItems().slice(start, start + this.pageSize);
+  });
+
+  protected readonly totalReviewPages = computed(() =>
+    Math.ceil(this.allItems().length / this.pageSize),
+  );
+
+  protected readonly reviewPages = computed(() =>
+    Array.from({ length: this.totalReviewPages() }),
+  );
+
   protected readonly suppliers = this.supplierService.suppliers;
   protected readonly clients = this.clientService.clients;
   protected readonly groups = this.categoryService.groups;
@@ -87,6 +105,10 @@ export class BankImportReviewComponent implements OnInit {
     const next = new Set(this.selectedIds());
     next.has(id) ? next.delete(id) : next.add(id);
     this.selectedIds.set(next);
+  }
+
+  protected goToReviewPage(page: number): void {
+    this.currentReviewPage.set(page);
   }
 
   protected updateItemField(item: BankImportItem, field: string, value: string | null): void {
