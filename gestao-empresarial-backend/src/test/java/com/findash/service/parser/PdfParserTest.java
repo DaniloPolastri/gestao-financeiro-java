@@ -55,7 +55,7 @@ class PdfParserTest {
                 "20/01/2026  DEPOSITO EM CONTA                 500,00 C"
         );
 
-        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf");
+        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf").transactions();
         assertEquals(4, result.size());
     }
 
@@ -66,7 +66,7 @@ class PdfParserTest {
                 "16/01/2026  COMPRA DEBITO - LOJA XYZ           89,90"
         );
 
-        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf");
+        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf").transactions();
         assertEquals("CREDIT", result.get(0).type());
         assertEquals("DEBIT", result.get(1).type());
     }
@@ -77,7 +77,7 @@ class PdfParserTest {
                 "18/01/2026  TED ENVIADA - FORNECEDOR 123    -3.000,00"
         );
 
-        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf");
+        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf").transactions();
         assertEquals(1, result.size());
         assertEquals("DEBIT", result.get(0).type());
         assertEquals(0, new BigDecimal("3000.00").compareTo(result.get(0).amount()));
@@ -89,7 +89,7 @@ class PdfParserTest {
                 "15/01/2026  PIX RECEBIDO - CLIENTE ABC      1.234,56 C"
         );
 
-        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf");
+        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf").transactions();
         assertEquals(0, new BigDecimal("1234.56").compareTo(result.get(0).amount()));
     }
 
@@ -99,7 +99,7 @@ class PdfParserTest {
                 "15/01/26  TRANSFERENCIA    250,00 C"
         );
 
-        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf");
+        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf").transactions();
         assertEquals(1, result.size());
         assertEquals(LocalDate.of(2026, 1, 15), result.get(0).date());
     }
@@ -124,7 +124,7 @@ class PdfParserTest {
                 "15/01/2026  PAGAMENTO BOLETO    R$ 450,00"
         );
 
-        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf");
+        List<ParsedTransaction> result = parser.parse(pdf, "extrato.pdf").transactions();
         assertEquals(1, result.size());
         assertEquals(0, new BigDecimal("450.00").compareTo(result.get(0).amount()));
     }

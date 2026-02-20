@@ -15,7 +15,7 @@ class CsvParserTest {
     @Test
     void parse_validCsv_returnsTwoTransactions() throws Exception {
         InputStream input = getClass().getResourceAsStream("/samples/sample.csv");
-        List<ParsedTransaction> result = parser.parse(input, "sample.csv");
+        List<ParsedTransaction> result = parser.parse(input, "sample.csv").transactions();
         assertEquals(2, result.size());
     }
 
@@ -23,7 +23,7 @@ class CsvParserTest {
     void parse_csvWithSemicolonSeparator_parsesCorrectly() throws Exception {
         String csv = "data;descricao;valor;tipo\n2026-01-15;Teste;500.00;DEBIT\n";
         InputStream input = new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
-        List<ParsedTransaction> result = parser.parse(input, "test.csv");
+        List<ParsedTransaction> result = parser.parse(input, "test.csv").transactions();
         assertEquals(1, result.size());
         assertEquals("Teste", result.get(0).description());
     }

@@ -57,25 +57,27 @@ public class BankImportServiceImpl implements BankImportService {
             file.getOriginalFilename() : "extrato";
         BankImportFileType fileType = detectFileType(filename);
 
-        List<ParsedTransaction> transactions;
+        ParseResult parseResult;
         try {
             BankStatementParser parser = switch (fileType) {
                 case OFX -> ofxParser;
                 case CSV -> csvParser;
                 case PDF -> pdfParser;
             };
-            transactions = parser.parse(file.getInputStream(), filename);
+            parseResult = parser.parse(file.getInputStream(), filename);
         } catch (BusinessRuleException e) {
             throw e;
         } catch (Exception e) {
             throw new BusinessRuleException("Erro ao processar arquivo: " + e.getMessage());
         }
 
+        List<ParsedTransaction> transactions = parseResult.transactions();
         if (transactions.isEmpty()) {
             throw new BusinessRuleException("Nenhuma transacao encontrada no arquivo.");
         }
 
         BankImport bankImport = new BankImport(companyId, filename, fileType, userId);
+        bankImport.setBankName(parseResult.bankName());
         bankImport = importRepository.save(bankImport);
 
         List<SupplierMatchRule> rules = matchRuleRepository.findByCompanyId(companyId);
@@ -116,7 +118,7 @@ public class BankImportServiceImpl implements BankImportService {
         return importRepository.findByCompanyIdOrderByCreatedAtDesc(companyId).stream()
             .map(i -> new BankImportSummaryDTO(
                 i.getId(), i.getFileName(), i.getFileType().name(),
-                i.getStatus().name(), i.getTotalRecords(), i.getCreatedAt()))
+                i.getStatus().name(), i.getTotalRecords(), i.getBankName(), i.getCreatedAt()))
             .toList();
     }
 
@@ -289,7 +291,8 @@ public class BankImportServiceImpl implements BankImportService {
         return new BankImportResponseDTO(
             bankImport.getId(), bankImport.getFileName(),
             bankImport.getFileType().name(), bankImport.getStatus().name(),
-            bankImport.getTotalRecords(), bankImport.getCreatedAt(), itemDTOs
+            bankImport.getTotalRecords(), bankImport.getBankName(),
+            bankImport.getCreatedAt(), itemDTOs
         );
     }
 

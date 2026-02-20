@@ -32,6 +32,9 @@ public class BankImport {
     @Column(name = "imported_by")
     private UUID importedBy;
 
+    @Column(name = "bank_name")
+    private String bankName;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -51,8 +54,10 @@ public class BankImport {
     public BankImportStatus getStatus() { return status; }
     public int getTotalRecords() { return totalRecords; }
     public UUID getImportedBy() { return importedBy; }
+    public String getBankName() { return bankName; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
+    public void setBankName(String bankName) { this.bankName = bankName; }
     public void setStatus(BankImportStatus status) { this.status = status; }
     public void setTotalRecords(int totalRecords) { this.totalRecords = totalRecords; }
     public void setId(UUID id) { this.id = id; }

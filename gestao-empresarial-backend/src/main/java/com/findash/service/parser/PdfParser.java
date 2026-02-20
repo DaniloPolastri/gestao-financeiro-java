@@ -30,7 +30,7 @@ public class PdfParser implements BankStatementParser {
             "(-?)\\s*(?:R\\$\\s*)?(-?)(\\d{1,3}(?:\\.\\d{3})*,\\d{2})\\s*([CDcd])?\\s*$");
 
     @Override
-    public List<ParsedTransaction> parse(InputStream input, String filename) throws Exception {
+    public ParseResult parse(InputStream input, String filename) throws Exception {
         String text;
         try (PDDocument doc = Loader.loadPDF(input.readAllBytes())) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -53,7 +53,7 @@ public class PdfParser implements BankStatementParser {
                     "Tente exportar o extrato do seu banco em formato OFX ou CSV.");
         }
 
-        return transactions;
+        return new ParseResult(transactions, null);
     }
 
     private ParsedTransaction tryParseLine(String line) {

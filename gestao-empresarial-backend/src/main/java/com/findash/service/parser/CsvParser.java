@@ -26,13 +26,14 @@ public class CsvParser implements BankStatementParser {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
-    public List<ParsedTransaction> parse(InputStream input, String filename) throws Exception {
+    public ParseResult parse(InputStream input, String filename) throws Exception {
         byte[] bytes = input.readAllBytes();
 
         // Tenta UTF-8 primeiro, depois ISO-8859-1
         for (Charset charset : List.of(StandardCharsets.UTF_8, Charset.forName("ISO-8859-1"))) {
             try {
-                return tryParse(bytes, charset);
+                List<ParsedTransaction> transactions = tryParse(bytes, charset);
+                return new ParseResult(transactions, null);
             } catch (Exception ignored) {}
         }
 
