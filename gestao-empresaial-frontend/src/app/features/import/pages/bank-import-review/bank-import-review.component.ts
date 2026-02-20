@@ -34,6 +34,25 @@ export class BankImportReviewComponent implements OnInit {
   protected readonly confirming = signal(false);
   protected readonly selectedIds = signal<Set<string>>(new Set());
   protected readonly showConfirmCancel = signal(false);
+  protected readonly reviewed = signal(false);
+
+  protected readonly currentReviewPage = signal(0);
+  private readonly pageSize = 25;
+
+  protected readonly allItems = computed(() => this.bankImport()?.items ?? []);
+
+  protected readonly pagedItems = computed(() => {
+    const start = this.currentReviewPage() * this.pageSize;
+    return this.allItems().slice(start, start + this.pageSize);
+  });
+
+  protected readonly totalReviewPages = computed(() =>
+    Math.ceil(this.allItems().length / this.pageSize),
+  );
+
+  protected readonly reviewPages = computed(() =>
+    Array.from({ length: this.totalReviewPages() }),
+  );
 
   protected readonly suppliers = this.supplierService.suppliers;
   protected readonly clients = this.clientService.clients;
@@ -55,6 +74,10 @@ export class BankImportReviewComponent implements OnInit {
 
   protected readonly allSelected = computed(
     () => this.selectedIds().size === this.totalCount() && this.totalCount() > 0,
+  );
+
+  protected readonly isEditable = computed(
+    () => this.bankImport()?.status === 'PENDING_REVIEW',
   );
 
   ngOnInit(): void {
@@ -89,6 +112,10 @@ export class BankImportReviewComponent implements OnInit {
     this.selectedIds.set(next);
   }
 
+  protected goToReviewPage(page: number): void {
+    this.currentReviewPage.set(page);
+  }
+
   protected updateItemField(item: BankImportItem, field: string, value: string | null): void {
     const importId = this.bankImport()!.id;
     this.importService
@@ -96,7 +123,7 @@ export class BankImportReviewComponent implements OnInit {
       .subscribe((updated) => this.replaceItem(updated));
   }
 
-  protected applyBulk(supplierId: string | null, categoryId: string | null): void {
+  protected applyBulk(accountType: string | null, supplierId: string | null, categoryId: string | null): void {
     const importId = this.bankImport()!.id;
     const itemIds = Array.from(this.selectedIds());
     if (!itemIds.length) return;
@@ -104,6 +131,7 @@ export class BankImportReviewComponent implements OnInit {
     this.importService
       .updateItemsBatch(importId, {
         itemIds,
+        accountType: (accountType as 'PAYABLE' | 'RECEIVABLE') ?? undefined,
         supplierId: supplierId ?? undefined,
         categoryId: categoryId ?? undefined,
       })

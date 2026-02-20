@@ -10,6 +10,7 @@ public record BankImportResponseDTO(
     String fileType,
     String status,
     int totalRecords,
+    String bankName,
     LocalDateTime createdAt,
     List<BankImportItemResponseDTO> items
 ) {}

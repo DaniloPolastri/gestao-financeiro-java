@@ -6,37 +6,66 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Revisão de Importação</h1>
+      <h1 class="text-2xl font-bold text-gray-900">
+        {{ isEditable() ? 'Revisão de Importação' : 'Detalhes da Importação' }}
+      </h1>
       <p class="text-sm text-gray-500 mt-1">{{ bankImport()!.fileName }}</p>
     </div>
-    <div class="flex items-center gap-3">
-      <span class="text-sm text-gray-600">
-        {{ readyCount() }} de {{ totalCount() }} prontos
+    @if (isEditable()) {
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-gray-600">
+          {{ readyCount() }} de {{ totalCount() }} prontos
+        </span>
+        <button
+          (click)="showConfirmCancel.set(true)"
+          class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="confirm()"
+          [disabled]="!allReady() || !reviewed() || confirming()"
+          class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          [title]="!allReady() ? 'Preencha fornecedor e categoria em todos os itens' : !reviewed() ? 'Marque que revisou todos os itens' : ''"
+        >
+          @if (confirming()) {
+            <i class="pi pi-spin pi-spinner mr-2"></i>
+          }
+          Confirmar Importação
+        </button>
+      </div>
+    } @else {
+      <span class="text-xs px-2 py-1 rounded-full"
+        [class]="bankImport()!.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'">
+        {{ bankImport()!.status === 'COMPLETED' ? 'Concluída' : 'Cancelada' }}
       </span>
-      <button
-        (click)="showConfirmCancel.set(true)"
-        class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-      >
-        Cancelar
-      </button>
-      <button
-        (click)="confirm()"
-        [disabled]="!allReady() || confirming()"
-        class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        [title]="!allReady() ? 'Preencha fornecedor e categoria em todos os itens' : ''"
-      >
-        @if (confirming()) {
-          <i class="pi pi-spin pi-spinner mr-2"></i>
-        }
-        Confirmar Importação
-      </button>
-    </div>
+    }
   </div>
+
+  @if (isEditable()) {
+    <!-- Review confirmation -->
+    <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+      <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+        <input
+          type="checkbox"
+          [checked]="reviewed()"
+          (change)="reviewed.set(!reviewed())"
+          class="rounded border-gray-300"
+        />
+        Revisei todos os itens e confirmo que os tipos (A Pagar / A Receber) estão corretos
+      </label>
+    </div>
+  }
 
   <!-- Bulk action bar -->
   @if (selectedIds().size > 0) {
     <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-4">
       <span class="text-sm font-medium text-blue-700">{{ selectedIds().size }} selecionados</span>
+      <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkType>
+        <option value="">Tipo...</option>
+        <option value="PAYABLE">A Pagar</option>
+        <option value="RECEIVABLE">A Receber</option>
+      </select>
       <select class="text-sm border border-gray-300 rounded px-2 py-1" #bulkSupplier>
         <option value="">Fornecedor/Cliente...</option>
         @if (suppliers().length > 0) {
@@ -61,7 +90,7 @@
         }
       </select>
       <button
-        (click)="applyBulk(bulkSupplier.value || null, bulkCategory.value || null)"
+        (click)="applyBulk(bulkType.value || null, bulkSupplier.value || null, bulkCategory.value || null)"
         class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
       >
         Aplicar
@@ -74,9 +103,11 @@
     <table class="w-full text-sm">
       <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
         <tr>
-          <th class="px-4 py-3 w-8">
-            <input type="checkbox" [checked]="allSelected()" (change)="toggleSelectAll()" />
-          </th>
+          @if (isEditable()) {
+            <th class="px-4 py-3 w-8">
+              <input type="checkbox" [checked]="allSelected()" (change)="toggleSelectAll()" />
+            </th>
+          }
           <th class="px-4 py-3 text-left">Data</th>
           <th class="px-4 py-3 text-left">Descrição</th>
           <th class="px-4 py-3 text-right">Valor</th>
@@ -86,15 +117,17 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-        @for (item of bankImport()!.items; track item.id) {
+        @for (item of pagedItems(); track item.id) {
           <tr [class]="item.possibleDuplicate ? 'bg-amber-50' : 'hover:bg-gray-50'">
-            <td class="px-4 py-3">
-              <input
-                type="checkbox"
-                [checked]="selectedIds().has(item.id)"
-                (change)="toggleSelect(item.id)"
-              />
-            </td>
+            @if (isEditable()) {
+              <td class="px-4 py-3">
+                <input
+                  type="checkbox"
+                  [checked]="selectedIds().has(item.id)"
+                  (change)="toggleSelect(item.id)"
+                />
+              </td>
+            }
             <td class="px-4 py-3 text-gray-700">{{ item.date }}</td>
             <td class="px-4 py-3 text-gray-900">
               {{ item.description }}
@@ -111,59 +144,92 @@
               R$ {{ item.amount | number: '1.2-2' }}
             </td>
             <td class="px-4 py-3 text-center">
-              <span
-                class="text-xs px-2 py-1 rounded-full whitespace-nowrap"
-                [class]="
-                  item.accountType === 'PAYABLE'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-emerald-100 text-emerald-700'
-                "
-              >
-                {{ item.accountType === 'PAYABLE' ? 'A Pagar' : 'A Receber' }}
-              </span>
+              @if (isEditable()) {
+                <select
+                  class="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                  [ngModel]="item.accountType"
+                  (ngModelChange)="updateItemField(item, 'accountType', $event)"
+                >
+                  <option value="PAYABLE">A Pagar</option>
+                  <option value="RECEIVABLE">A Receber</option>
+                </select>
+              } @else {
+                <span class="text-xs px-2 py-1 rounded-full whitespace-nowrap"
+                  [class]="item.accountType === 'PAYABLE' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'">
+                  {{ item.accountType === 'PAYABLE' ? 'A Pagar' : 'A Receber' }}
+                </span>
+              }
             </td>
             <td class="px-4 py-3">
-              <select
-                class="w-full text-sm border border-gray-300 rounded px-2 py-1"
-                [class]="!item.supplierId ? 'border-red-300 bg-red-50' : ''"
-                [ngModel]="item.supplierId"
-                (ngModelChange)="updateItemField(item, 'supplierId', $event)"
-              >
-                <option [ngValue]="null">Selecionar...</option>
-                @if (suppliers().length > 0) {
-                  <optgroup label="Fornecedores">
-                    @for (s of suppliers(); track s.id) {
-                      <option [value]="s.id">{{ s.name }}</option>
-                    }
-                  </optgroup>
-                }
-                @if (clients().length > 0) {
-                  <optgroup label="Clientes">
-                    @for (c of clients(); track c.id) {
-                      <option [value]="c.id">{{ c.name }}</option>
-                    }
-                  </optgroup>
-                }
-              </select>
+              @if (isEditable()) {
+                <select
+                  class="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                  [class]="!item.supplierId ? 'border-red-300 bg-red-50' : ''"
+                  [ngModel]="item.supplierId"
+                  (ngModelChange)="updateItemField(item, 'supplierId', $event)"
+                >
+                  <option [ngValue]="null">Selecionar...</option>
+                  @if (suppliers().length > 0) {
+                    <optgroup label="Fornecedores">
+                      @for (s of suppliers(); track s.id) {
+                        <option [value]="s.id">{{ s.name }}</option>
+                      }
+                    </optgroup>
+                  }
+                  @if (clients().length > 0) {
+                    <optgroup label="Clientes">
+                      @for (c of clients(); track c.id) {
+                        <option [value]="c.id">{{ c.name }}</option>
+                      }
+                    </optgroup>
+                  }
+                </select>
+              } @else {
+                <span class="text-sm text-gray-700">{{ item.supplierName || '—' }}</span>
+              }
             </td>
             <td class="px-4 py-3">
-              <select
-                class="w-full text-sm border border-gray-300 rounded px-2 py-1"
-                [class]="!item.categoryId ? 'border-red-300 bg-red-50' : ''"
-                [ngModel]="item.categoryId"
-                (ngModelChange)="updateItemField(item, 'categoryId', $event)"
-              >
-                <option [ngValue]="null">Selecionar...</option>
-                @for (c of categories(); track c.id) {
-                  <option [value]="c.id">{{ c.name }}</option>
-                }
-              </select>
+              @if (isEditable()) {
+                <select
+                  class="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                  [class]="!item.categoryId ? 'border-red-300 bg-red-50' : ''"
+                  [ngModel]="item.categoryId"
+                  (ngModelChange)="updateItemField(item, 'categoryId', $event)"
+                >
+                  <option [ngValue]="null">Selecionar...</option>
+                  @for (c of categories(); track c.id) {
+                    <option [value]="c.id">{{ c.name }}</option>
+                  }
+                </select>
+              } @else {
+                <span class="text-sm text-gray-700">{{ item.categoryName || '—' }}</span>
+              }
             </td>
           </tr>
         }
       </tbody>
     </table>
   </div>
+
+  @if (totalReviewPages() > 1) {
+    <div class="flex items-center justify-between mt-4">
+      <p class="text-xs text-gray-500">{{ allItems().length }} item(ns)</p>
+      <div class="flex gap-1">
+        @for (p of reviewPages(); track $index) {
+          <button
+            (click)="goToReviewPage($index)"
+            class="w-8 h-8 text-xs rounded-md"
+            [class.bg-blue-600]="currentReviewPage() === $index"
+            [class.text-white]="currentReviewPage() === $index"
+            [class.bg-gray-100]="currentReviewPage() !== $index"
+            [class.text-gray-600]="currentReviewPage() !== $index"
+          >
+            {{ $index + 1 }}
+          </button>
+        }
+      </div>
+    </div>
+  }
 
   <!-- Modal cancelar -->
   @if (showConfirmCancel()) {

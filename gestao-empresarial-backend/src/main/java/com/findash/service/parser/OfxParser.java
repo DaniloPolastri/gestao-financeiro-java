@@ -6,6 +6,7 @@ import com.webcohesion.ofx4j.domain.data.banking.BankStatementResponse;
 import com.webcohesion.ofx4j.domain.data.banking.BankingResponseMessageSet;
 import com.webcohesion.ofx4j.domain.data.common.Transaction;
 import com.webcohesion.ofx4j.domain.data.common.TransactionList;
+import com.webcohesion.ofx4j.domain.data.signon.FinancialInstitution;
 import com.webcohesion.ofx4j.io.AggregateUnmarshaller;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +21,12 @@ import java.util.Map;
 public class OfxParser implements BankStatementParser {
 
     @Override
-    public List<ParsedTransaction> parse(InputStream input, String filename) throws Exception {
+    public ParseResult parse(InputStream input, String filename) throws Exception {
         AggregateUnmarshaller<ResponseEnvelope> unmarshaller =
             new AggregateUnmarshaller<>(ResponseEnvelope.class);
         ResponseEnvelope envelope = unmarshaller.unmarshal(input);
+
+        String bankName = extractBankName(envelope);
 
         var bankMessages = envelope.getMessageSet(MessageSetType.banking);
         if (bankMessages == null) {
@@ -55,6 +58,19 @@ public class OfxParser implements BankStatementParser {
                 ));
             }
         }
-        return result;
+        return new ParseResult(result, bankName);
+    }
+
+    private String extractBankName(ResponseEnvelope envelope) {
+        try {
+            var signonResponse = envelope.getSignonResponse();
+            if (signonResponse == null) return null;
+            FinancialInstitution fi = signonResponse.getFinancialInstitution();
+            if (fi == null) return null;
+            String org = fi.getOrganization();
+            return (org != null && !org.isBlank()) ? org.trim() : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

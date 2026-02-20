@@ -9,5 +9,6 @@ public record BankImportSummaryDTO(
     String fileType,
     String status,
     int totalRecords,
+    String bankName,
     LocalDateTime createdAt
 ) {}

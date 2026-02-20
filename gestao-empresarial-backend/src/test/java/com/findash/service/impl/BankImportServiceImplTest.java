@@ -54,7 +54,7 @@ class BankImportServiceImplTest {
             "dummy".getBytes());
         var tx = new ParsedTransaction(LocalDate.now(), "XPTO", new BigDecimal("100"), "DEBIT", Map.of());
 
-        when(ofxParser.parse(any(), any())).thenReturn(List.of(tx));
+        when(ofxParser.parse(any(), any())).thenReturn(new ParseResult(List.of(tx), null));
         when(matchRuleRepository.findByCompanyId(companyId)).thenReturn(List.of());
         when(supplierRepository.findByCompanyIdAndActiveTrue(companyId)).thenReturn(List.of());
         when(accountRepository.existsByCompanyIdAndDueDateAndAmountAndDescription(any(), any(), any(), any()))
@@ -78,7 +78,7 @@ class BankImportServiceImplTest {
     @Test
     void upload_emptyFile_throws() throws Exception {
         var file = new MockMultipartFile("file", "extrato.ofx", "application/octet-stream", "dummy".getBytes());
-        when(ofxParser.parse(any(), any())).thenReturn(List.of());
+        when(ofxParser.parse(any(), any())).thenReturn(new ParseResult(List.of(), null));
         assertThrows(BusinessRuleException.class, () -> service.upload(companyId, userId, file));
     }
 
