@@ -33,6 +33,19 @@
     </div>
   </div>
 
+  <!-- Review confirmation -->
+  <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+    <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+      <input
+        type="checkbox"
+        [checked]="reviewed()"
+        (change)="reviewed.set(!reviewed())"
+        class="rounded border-gray-300"
+      />
+      Revisei todos os itens e confirmo que os tipos (A Pagar / A Receber) estão corretos
+    </label>
+  </div>
+
   <!-- Bulk action bar -->
   @if (selectedIds().size > 0) {
     <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-4">
@@ -187,18 +200,6 @@
       </div>
     </div>
   }
-
-  <div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-    <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-      <input
-        type="checkbox"
-        [checked]="reviewed()"
-        (change)="reviewed.set(!reviewed())"
-        class="rounded border-gray-300"
-      />
-      Revisei todos os itens e confirmo que os tipos (A Pagar / A Receber) estão corretos
-    </label>
-  </div>
 
   <!-- Modal cancelar -->
   @if (showConfirmCancel()) {
